@@ -63,7 +63,10 @@ succeeded for commit `b896cb6` on 2026-09-26 (build
 with byte-identical original HTML afterward.
 The Hermes skill is in `skills/plant-model-deploy/` and is installed and enabled
 in the operator's default Hermes profile. Its HTTP/hash helper passed live and
-negative checks. No chat upload has been tested. The repo-scoped machine credential
+negative checks. A default-profile Hermes CLI chat test passed on 2026-09-26:
+it verified the existing identical Chifunde file and live URL without changes or
+an empty commit. Messaging-platform attachments and new-file uploads are untested.
+The repo-scoped machine credential
 is not provisioned. Olimpio approved using the operator's existing SSH credential
 for the default-profile Hermes test only. Hermes's browser-autofill vault is not
 a Git credential backend.

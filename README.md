@@ -85,8 +85,12 @@ does not prove that the public deployment works.
 The skill source is `skills/plant-model-deploy/`. A copy is installed and enabled
 in the operator's default Hermes profile at `~/.hermes/skills/plant-model-deploy/`.
 Its read-only verification helper has passed live HTTP/hash verification and
-negative checks for invalid slugs and mismatched content. No Hermes chat upload
-has been tested yet, and a production machine credential is not provisioned.
+negative checks for invalid slugs and mismatched content. A default-profile Hermes
+CLI chat test passed on 2026-09-26 (session `20260926_034224_84addb`): it recognized
+the existing byte-identical Chifunde model, verified HTTP 200 and the live hash,
+and correctly made no file change, commit, or push. A messaging-platform attachment
+and a new-file upload still need testing; a production machine credential is not
+provisioned.
 
 Start a fresh chat in the default profile so it discovers the skill. The local
 checkout for this test is `/home/hlmoz/projects/prototype-link`. An initial
