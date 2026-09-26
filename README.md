@@ -15,7 +15,9 @@ The Chifunde model's intended URL is:
 
 Deployed on 2026-09-26. HTTPS returns HTTP 200 and the served HTML matches the
 original byte-for-byte. Browser rendering and controls still need verification.
-Workers Builds is not connected yet; this first deployment used local Wrangler.
+The first deployment used local Wrangler. Workers Builds is now connected to
+`aqui-ai/proto-link` on `main`, with `npm run deploy` and preview builds disabled.
+The first Git-triggered deployment is pending verification.
 
 ## Repository layout
 
@@ -114,11 +116,13 @@ financial records, contracts, or credentials.
 - [x] Import the Chifunde HTML unchanged and prepare Cloudflare configuration.
 - [x] Push the model and Cloudflare setup commits.
 - [x] Confirm the Free-tier dashboard, deploy with Wrangler, and provision the custom domain.
-- [ ] Connect Workers Builds to GitHub for automatic deployments from `main`.
+- [x] Connect Workers Builds to GitHub for automatic deployments from `main`.
+- [ ] Verify the first successful Git-triggered deployment.
 - [ ] Verify the live Chifunde model end to end.
 - [ ] Provision the repo-scoped Hermes credential and build `plant-model-deploy`.
 
 Cloudflare integration and Wrangler now access the account containing `qlt.co.mz`.
 Deployment version: `9fd810ac-994e-48ff-a40a-f0760278a4ab`.
 The Free-tier dashboard was checked; the integration cannot read billing subscriptions.
-No paid services were enabled. The Builds API reports no Git triggers for this Worker.
+No paid services were enabled. The Builds API confirms the production repository
+connection, empty build command, repository root `/`, and disabled preview builds.

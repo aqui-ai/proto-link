@@ -17,7 +17,7 @@ The first model is `public/chifunde/plant1/index.html`.
 ## Deployment
 
 - Hosting is Cloudflare Workers Static Assets; `wrangler.jsonc` is the source of truth.
-- Workers Builds should deploy on pushes to `main` once the Git integration is connected.
+- Workers Builds is connected to GitHub and configured to deploy on pushes to `main`.
 - Use the pinned local Wrangler via `npm run dev`, `npm run check`, and `npm run deploy`.
 - No HTML compilation, custom Worker handler, or GitHub Actions pipeline is needed.
 - Keep the Worker name `proto-link` consistent with the dashboard.
@@ -56,7 +56,9 @@ The model and Cloudflare configuration are on GitHub. Local Wrangler deployed
 `proto-link` to `plants.qlt.co.mz` on 2026-09-26. The exact model URL returns HTTPS
 200 and serves byte-identical original HTML. Browser rendering and controls still
 need verification. The Free-tier dashboard was checked; no paid services were enabled.
-Workers Builds has no Git triggers yet, so pushes do not currently auto-deploy.
+Workers Builds is connected to `aqui-ai/proto-link` on `main`, with deploy command
+`npm run deploy` and preview builds disabled. The first Git-triggered deployment
+still needs verification.
 The Hermes skill and its repo-scoped credential are not yet provisioned.
 Follow the setup steps in README.md.
 
