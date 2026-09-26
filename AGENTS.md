@@ -44,7 +44,7 @@ The first model is `public/chifunde/plant1/index.html`.
 
 ## Hermes trigger
 
-The planned `plant-model-deploy` skill receives HTML, places it under
+The `plant-model-deploy` skill receives HTML, places it under
 `public/<site>/<plant>/index.html`, commits, pushes, verifies deployment, and returns
 the URL. Trigger: "host this 3D model" with an HTML file, or a recognized plant model.
 Ask Olimpio once if the site, plant name, target, or access level is ambiguous;
@@ -61,7 +61,12 @@ Workers Builds is connected to `aqui-ai/proto-link` on `main`, with deploy comma
 succeeded for commit `b896cb6` on 2026-09-26 (build
 `7aaa2cbe-fb55-4be2-bb60-0e3c42200993`); the live model still returned HTTP 200
 with byte-identical original HTML afterward.
-The Hermes skill and its repo-scoped credential are not yet provisioned.
+The Hermes skill is in `skills/plant-model-deploy/` and is installed and enabled
+in the operator's default Hermes profile. Its HTTP/hash helper passed live and
+negative checks. No chat upload has been tested. The repo-scoped machine credential
+is not provisioned. Olimpio approved using the operator's existing SSH credential
+for the default-profile Hermes test only. Hermes's browser-autofill vault is not
+a Git credential backend.
 Follow the setup steps in README.md.
 
 Keep README.md and this file synchronized with layout, authentication, and status changes.

@@ -80,6 +80,39 @@ For an authenticated local deployment, `npm run deploy` uses the same config.
 Verify the target account and Free plan first. A successful dry run or Git push
 does not prove that the public deployment works.
 
+## Hermes default-profile test
+
+The skill source is `skills/plant-model-deploy/`. A copy is installed and enabled
+in the operator's default Hermes profile at `~/.hermes/skills/plant-model-deploy/`.
+Its read-only verification helper has passed live HTTP/hash verification and
+negative checks for invalid slugs and mismatched content. No Hermes chat upload
+has been tested yet, and a production machine credential is not provisioned.
+
+Start a fresh chat in the default profile so it discovers the skill. The local
+checkout for this test is `/home/hlmoz/projects/prototype-link`. An initial
+idempotent test can use this prompt with the Chifunde file attached:
+
+> Use plant-model-deploy. Host this 3D model at chifunde/plant1 using the
+> prototype-link checkout. If the HTML is already identical, verify the existing
+> live link and do not create a new commit.
+
+Olimpio approved using the operator's existing SSH credential for the default-profile
+Hermes test only. Production still requires the repo-scoped machine credential.
+The skill must not silently switch authentication. Use a separate, explicitly chosen
+plant path when testing publication of a new model.
+
+Hermes's local `vault` is for browser autofill, not Git token retrieval. The
+production repo-scoped credential needs a supported encrypted secret manager
+or secure Git credential helper. Never put a token in the skill, a remote URL,
+shell arguments, or chat. A fine-grained token should select only
+`aqui-ai/proto-link` with Contents read/write (and automatic Metadata read).
+
+Read-only check, without starting an agent or publishing anything:
+
+```sh
+node skills/plant-model-deploy/scripts/verify-model.mjs --source public/chifunde/plant1/index.html --site chifunde --plant plant1
+```
+
 ## Credentials
 
 - Mr. Lam uses his existing Hermes chat login.
@@ -121,7 +154,9 @@ financial records, contracts, or credentials.
 - [x] Connect Workers Builds to GitHub for automatic deployments from `main`.
 - [x] Verify the first successful Git-triggered deployment.
 - [ ] Verify the live Chifunde model end to end.
-- [ ] Provision the repo-scoped Hermes credential and build `plant-model-deploy`.
+- [x] Create `plant-model-deploy` and install it in the default Hermes profile.
+- [ ] Provision the repo-scoped Hermes credential.
+- [ ] Test an upload through the default Hermes chat, then roll out to Mr. Lam.
 
 Cloudflare integration and Wrangler now access the account containing `qlt.co.mz`.
 Deployment version: `9fd810ac-994e-48ff-a40a-f0760278a4ab`.
