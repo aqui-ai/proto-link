@@ -1,50 +1,61 @@
 # AGENTS.md — Operating Rules
 
-Agent operating rules for this repository: **THL 3D Model Hosting (GitHub → Vercel)**.
+Agent operating rules for **THL 3D Model Hosting (GitHub → Cloudflare)**.
 
-## Purpose
+## Purpose and layout
 
-A human (Mr. Lam) or an agent (Hermes) drops an AI-generated interactive 3D plant-model HTML file into this repo under `3d/<model-name>/index.html`. Vercel deploys it. The operator returns the public link `https://<project>.vercel.app/3d/<model-name>/`.
+Publish supplied plant-model HTML at `public/<site>/<plant>/index.html` and return
+`https://plants.qlt.co.mz/<site>/<plant>/` after verifying deployment.
+The first model is `public/chifunde/plant1/index.html`.
 
-## Model file requirements
+- Preserve the supplied HTML byte-for-byte unless Olimpio explicitly requests edits.
+- Keep Three.js and other CDN dependencies unchanged; do not inline libraries.
+- Use lowercase, readable, hyphenated site and plant names.
+- Only `public/` is served. Never place credentials or internal documents there.
+- Do not add a gallery unless Olimpio requests one.
 
-- Accept **single self-contained HTML** files (Three.js rendered in-browser, e.g. the Chifunde plant file).
-- Keep the file as-is unless Olimpio explicitly asks for modification. **Do not inline CDN libs** unless directed — current convention keeps Three.js on public CDNs.
-- Place each model in its **own folder**: `3d/<model-name>/index.html`. `<model-name>` is lower-case, hyphenated, readable (e.g. `chifunde-10tph`).
-- Keep CDN dependencies unchanged on receipt.
+## Deployment
 
-## Deployment rule
+- Hosting is Cloudflare Workers Static Assets; `wrangler.jsonc` is the source of truth.
+- Workers Builds should deploy on pushes to `main` once the Git integration is connected.
+- Use the pinned local Wrangler via `npm run dev`, `npm run check`, and `npm run deploy`.
+- No HTML compilation, custom Worker handler, or GitHub Actions pipeline is needed.
+- Keep the Worker name `proto-link` consistent with the dashboard.
+- Target the account containing `qlt.co.mz`; verify account access and inspect
+  existing `plants.qlt.co.mz` DNS before provisioning its Custom Domain.
+- Use **Workers Free**. Do not upgrade plans or enable paid services without approval.
+- Verify HTTP 200 at the exact model URL and check browser rendering and controls.
+  Do not equate a successful commit, push, or dry run with a successful deployment.
+- Report authentication or deployment failures honestly and give the exact live URL
+  only with a clear statement of its verification status.
 
-- **Vercel auto-deploys on push.** Pushing a new/updated `3d/<name>/index.html` to the default branch triggers a deploy. Do not add a GitHub Actions build for the core flow — the Git integration already deploys.
-- (Optional, not default) Only add an Actions index/gallery workflow if Olimpio asks for a single "all models" page.
-- After pushing, wait a few seconds and return the public link. Provide the exact URL in the response.
+## Auth and ownership
 
-## Auth & credentials
-
-- **Single machine credential**: a GitHub personal-access token scoped to **this repo only**, stored encrypted (Hermes vault / CI secret), never committed.
-- **No Vercel credential** is used by the pipeline — Vercel is connected via repo Git integration (set once during setup, not per-push).
-- Never write tokens, ~/.netrc, or secrets into tracked files. Never echo a secret value into a response.
-- If a secret is needed and not present, stop and ask — do not improvise or guess.
-
-## Governance guardrails
-
-- **IP ownership:** the repo must sit under a THL-owned namespace. If the GitHub identity is a personal account, flag it and route to a THL org/robot account before continuing.
-- **Public footprint:** deployed models are public and indexable. This is acceptable only if it is Mr. Lam's explicit intent. If access should be restricted, gate the served path (e.g. Nginx `auth_basic`) rather than leaking the file; do not silently make a sensitive model world-readable without confirming.
-- **No sensitive content:** do not put customer PII, financial records, contract contents, or credentials into this repo. Model HTML is engineering/visualization data.
+- Repository: `aqui-ai/proto-link`. Olimpio confirmed this namespace is THL-owned.
+- Public, indexable publication of the plant models is approved.
+- Hermes's routine uploads use one repo-scoped GitHub machine credential, encrypted
+  in its vault. The operator currently uses an SSH remote.
+- Cloudflare Git integration and the Workers Builds deployment token are configured
+  once in Cloudflare; routine Hermes uploads do not need a Cloudflare credential.
+- Never commit or print tokens, private keys, `~/.netrc`, or secrets.
+- If required authentication is missing, ask the operator to restore it rather
+  than guessing credentials or changing the auth model silently.
+- Do not publish customer PII, financial records, contracts, or credentials.
 
 ## Hermes trigger
 
-- A Hermes skill named **`plant-model-deploy`** owns this flow end to end: receives the HTML → commits to `3d/<name>/index.html` → pushes → returns the link.
-- Trigger: user says *"host this 3D model"* with the file, or the file is auto-recognized as a 3D plant model.
-- On ambiguity (folder name, repo target, access level), ask Olimpio once, then execute. Don't re-ask after an approval is given.
+The planned `plant-model-deploy` skill receives HTML, places it under
+`public/<site>/<plant>/index.html`, commits, pushes, verifies deployment, and returns
+the URL. Trigger: "host this 3D model" with an HTML file, or a recognized plant model.
+Ask Olimpio once if the site, plant name, target, or access level is ambiguous;
+do not repeat approvals already given.
 
-## Quality bar
+## Current status
 
-- Verify the link returns HTTP 200 before declaring success. A successful push is not a successful deploy.
-- If a deploy fails, report honestly with the error — never fabricate a "deployed" result.
-- Keep README.md and this file in sync with any layout or auth changes.
+Initial documentation is on GitHub. The model and Cloudflare configuration are
+prepared locally; pushing is blocked by GitHub SSH authentication. The connected
+Cloudflare API returned an authentication error, so Workers Free, the zone,
+Git integration, and live deployment remain unverified. The Hermes skill and its
+repo-scoped credential are not yet provisioned. Follow the setup steps in README.md.
 
-## Status notes
-
-- Repo not yet created; Vercel not yet connected; `plant-model-deploy` skill not yet built. Follow roadmap in README.
-- Confirm repo ownership identity is THL-owned before cutting the token.
+Keep README.md and this file synchronized with layout, authentication, and status changes.

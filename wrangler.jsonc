@@ -1,0 +1,17 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "proto-link",
+  "compatibility_date": "2026-09-26",
+  "assets": {
+    "directory": "./public",
+    "html_handling": "force-trailing-slash",
+    "not_found_handling": "none"
+  },
+  "routes": [
+    { "pattern": "plants.qlt.co.mz", "custom_domain": true }
+  ],
+  "observability": {
+    "enabled": true,
+    "traces": { "enabled": true }
+  }
+}
