@@ -17,7 +17,9 @@ Deployed on 2026-09-26. HTTPS returns HTTP 200 and the served HTML matches the
 original byte-for-byte. Browser rendering and controls still need verification.
 The first deployment used local Wrangler. Workers Builds is now connected to
 `aqui-ai/proto-link` on `main`, with `npm run deploy` and preview builds disabled.
-The first Git-triggered deployment is pending verification.
+The first Git-triggered deployment succeeded on 2026-09-26 for commit `b896cb6`
+(build `7aaa2cbe-fb55-4be2-bb60-0e3c42200993`, source `push_event`). After deployment,
+the model URL returned HTTP 200 with byte-identical original HTML.
 
 ## Repository layout
 
@@ -117,7 +119,7 @@ financial records, contracts, or credentials.
 - [x] Push the model and Cloudflare setup commits.
 - [x] Confirm the Free-tier dashboard, deploy with Wrangler, and provision the custom domain.
 - [x] Connect Workers Builds to GitHub for automatic deployments from `main`.
-- [ ] Verify the first successful Git-triggered deployment.
+- [x] Verify the first successful Git-triggered deployment.
 - [ ] Verify the live Chifunde model end to end.
 - [ ] Provision the repo-scoped Hermes credential and build `plant-model-deploy`.
 

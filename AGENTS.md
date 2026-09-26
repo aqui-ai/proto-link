@@ -58,7 +58,9 @@ The model and Cloudflare configuration are on GitHub. Local Wrangler deployed
 need verification. The Free-tier dashboard was checked; no paid services were enabled.
 Workers Builds is connected to `aqui-ai/proto-link` on `main`, with deploy command
 `npm run deploy` and preview builds disabled. The first Git-triggered deployment
-still needs verification.
+succeeded for commit `b896cb6` on 2026-09-26 (build
+`7aaa2cbe-fb55-4be2-bb60-0e3c42200993`); the live model still returned HTTP 200
+with byte-identical original HTML afterward.
 The Hermes skill and its repo-scoped credential are not yet provisioned.
 Follow the setup steps in README.md.
 
