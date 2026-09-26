@@ -52,10 +52,12 @@ do not repeat approvals already given.
 
 ## Current status
 
-Initial documentation is on GitHub. The model and Cloudflare configuration are
-prepared locally; pushing is blocked by GitHub SSH authentication. The connected
-Cloudflare API returned an authentication error, so Workers Free, the zone,
-Git integration, and live deployment remain unverified. The Hermes skill and its
-repo-scoped credential are not yet provisioned. Follow the setup steps in README.md.
+The model and Cloudflare configuration are on GitHub. Local Wrangler deployed
+`proto-link` to `plants.qlt.co.mz` on 2026-09-26. The exact model URL returns HTTPS
+200 and serves byte-identical original HTML. Browser rendering and controls still
+need verification. The Free-tier dashboard was checked; no paid services were enabled.
+Workers Builds has no Git triggers yet, so pushes do not currently auto-deploy.
+The Hermes skill and its repo-scoped credential are not yet provisioned.
+Follow the setup steps in README.md.
 
 Keep README.md and this file synchronized with layout, authentication, and status changes.
