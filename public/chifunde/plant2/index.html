@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="vi"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Chifunde – Nhà máy vàng pilot cơ động 150 t/ngày – Mô hình 3D</title>
+<style>
+:root{--navy:#1F4E79;--bg:#eef3f8;--fg:#14202c;--card:#ffffffee;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#0f1720;--fg:#e6edf3;--card:#1b2733ee}}
+:root[data-theme="dark"]{--bg:#0f1720;--fg:#e6edf3;--card:#1b2733ee}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--fg);font-family:Arial,Helvetica,sans-serif;overflow:hidden}
+#c{position:fixed;inset:0;width:100%;height:100%;display:block}
+#top{position:fixed;left:0;right:0;top:env(safe-area-inset-top,0px);background:var(--card);backdrop-filter:blur(6px);border-bottom:2px solid var(--navy);padding:6px 10px;display:flex;flex-wrap:wrap;gap:6px;align-items:center;z-index:5}
+#top h1{font-size:14px;margin:0 8px 0 0;color:var(--navy);flex:1 1 100%}
+button{border:1px solid var(--navy);background:transparent;color:var(--navy);border-radius:14px;padding:5px 10px;font-size:12px;cursor:pointer}
+button.on{background:var(--navy);color:#fff}
+#info{position:fixed;left:8px;right:8px;bottom:calc(8px + env(safe-area-inset-bottom,0px));max-width:420px;background:var(--card);border:1px solid var(--navy);border-radius:10px;padding:10px 12px;font-size:12.5px;line-height:1.35;z-index:5;display:none;max-height:38vh;overflow:auto}
+#info b{color:var(--navy)}
+#info .x{float:right;border:none;font-size:16px;padding:0 6px}
+#hint{position:fixed;right:10px;bottom:calc(10px + env(safe-area-inset-bottom,0px));font-size:11px;color:var(--fg);opacity:.75;z-index:4;background:var(--card);padding:4px 8px;border-radius:8px}
+#load{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:var(--bg);z-index:9;font-size:14px;color:var(--navy)}
+@media (max-width:640px){#top h1{font-size:12px}button{font-size:11px;padding:4px 8px}#hint{display:none}}
+</style></head><body>
+<canvas id="c"></canvas>
+<div id="top"><h1>Chifunde – Nhà máy vàng pilot cơ động 150 t/ngày · Mô hình 3D (sơ bộ)</h1>
+<button data-v="overview" class="on">Toàn cảnh</button><button data-v="crush">Đập – sàng</button><button data-v="mill">Nghiền – tuyển</button><button data-v="gold">Bàn đãi – phòng vàng</button><button data-v="pond">Hồ thải</button><button data-v="plan">Mặt bằng</button>
+<button id="lab">Nhãn</button><button id="fly">Xoay</button></div>
+<div id="info"><button class="x" onclick="document.getElementById('info').style.display='none'">×</button><div id="it"></div></div>
+<div id="hint">Kéo để xoay · cuộn để phóng · chuột phải để dịch · chạm vào thiết bị để xem thông số</div>
+<div id="load">Đang dựng mô hình 3D…</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<script>
+const LAYOUT = {"E": [{"tag": "100-HP-01", "vn": "Phễu quặng nguyên khai 8 m³ + sàng song 300 mm", "en": "ROM hopper 8 m³ + 300 mm grizzly bars", "model": "3,0×4,0 m top", "kw": 0, "mass": 3.5, "kind": "hopper", "pos": [38.0, 0.0, 3.4], "rot": 0, "dims": [3.0, 4.0, 2.1], "skid": [3.6, 4.6, 3.4], "spec_vn": "Miệng phễu +5,50; máy xúc đổ từ sân +2,50 (tường rọ đá). Thanh sàng 300 mm loại đá quá cỡ.", "spec_en": "Lip at +5.50; loader tips from +2.50 ramp (gabion wall). 300 mm bars reject oversize.", "p": {}}, {"tag": "100-FD-01", "vn": "Cấp liệu rung sàng song", "en": "Vibrating grizzly feeder", "model": "ZSW 380×95 (3,8×0,95 m)", "kw": 11, "mass": 3.2, "kind": "feeder", "pos": [37.3, 0.0, 2.9], "rot": 0, "dims": [3.8, 0.95, 1.1], "skid": [0, 0, 0], "spec_vn": "Đặt trên khung thép cao 2,9 m; khe sàng 60 mm, hạt −60 mm đi tắt xuống băng CV-01.", "spec_en": "On 2.9 m steel frame; 60 mm grizzly, −60 mm bypasses the jaw to CV-01.", "p": {}}, {"tag": "100-CR-01", "vn": "Máy đập hàm sơ cấp", "en": "Primary jaw crusher", "model": "PE 400×600 – cửa nạp ≤340 mm, khe xả 40–100 mm", "kw": 30, "mass": 7.0, "kind": "jaw", "pos": [34.4, 0.0, 0.9], "rot": 0, "dims": [1.73, 1.73, 1.63], "skid": [2.6, 2.4, 0.9], "spec_vn": "Khe xả đặt 50 mm → sản phẩm −70 mm; 16–60 t/h. Bệ thép 0,9 m để băng tải chui dưới.", "spec_en": "CSS set 50 mm → −70 mm product; 16–60 t/h. 0.9 m steel plinth so the belt passes underneath.", "p": {}}, {"tag": "100-CR-02", "vn": "Máy đập hàm thứ cấp", "en": "Secondary jaw crusher", "model": "PEX 250×750 – cửa nạp ≤210 mm, khe xả 25–60 mm", "kw": 22, "mass": 5.0, "kind": "jaw", "pos": [21.9, 0.0, 0.9], "rot": 0, "dims": [1.38, 1.75, 1.54], "skid": [2.4, 2.6, 0.9], "spec_vn": "Khe xả đặt 25 mm → sản phẩm −35 mm; 8–22 t/h.", "spec_en": "CSS set 25 mm → −35 mm product; 8–22 t/h.", "p": {}}, {"tag": "100-CR-03", "vn": "Máy đập côn (côn mịn)", "en": "Cone crusher (fine head)", "model": "PYD 600 – cửa nạp ≤35 mm, khe xả 3–13 mm", "kw": 30, "mass": 5.5, "kind": "cone", "pos": [7.5, 0.0, 1.3], "rot": 0, "dims": [2.23, 1.37, 1.68], "skid": [2.8, 2.6, 1.3], "spec_vn": "Khe xả đặt 8 mm → sản phẩm −12 mm; 12–23 t/h; mạch kín với sàng SC-01.", "spec_en": "CSS set 8 mm → −12 mm product; 12–23 t/h; closed circuit with screen SC-01.", "p": {}}, {"tag": "100-SC-01", "vn": "Sàng rung tròn 2 lưới", "en": "Circular vibrating screen, double deck", "model": "2YK 1237 – 1,2×3,7 m, lưới 20 mm / 8 mm, nghiêng 18°", "kw": 11, "mass": 3.6, "kind": "screen", "pos": [7.5, -18.35, 2.2], "rot": 0, "dims": [3.7, 1.2, 1.3], "skid": [4.2, 2.2, 2.2], "spec_vn": "Trên sàng (+8 mm) → CV-04 về máy côn; dưới sàng (−8 mm) → CV-05 lên đống quặng mịn.", "spec_en": "Oversize (+8 mm) → CV-04 back to cone; undersize (−8 mm) → CV-05 to fine-ore stockpile.", "p": {}}, {"tag": "100-SP-01", "vn": "Đống quặng mịn −8 mm", "en": "Fine-ore stockpile −8 mm", "model": "Nón Ø13 m × cao 4,9 m ≈ 215 m³ ≈ 340 t", "kw": 0, "mass": 0, "kind": "stockpile", "pos": [-10.0, -22.5, 0.0], "rot": 0, "dims": [13.0, 13.0, 4.9], "skid": [0, 0, 0], "spec_vn": "Đệm ≈ 2 ngày cho máy nghiền; máy xúc chuyển sang phễu HP-02.", "spec_en": "≈ 2 days buffer for the mill; loader transfers to hopper HP-02.", "p": {}}, {"tag": "200-HP-02", "vn": "Phễu cấp liệu máy nghiền 6 m³ + cấp liệu băng", "en": "Mill feed hopper 6 m³ + belt feeder", "model": "2,5×3,0 m top; băng B500 VSD", "kw": 3, "mass": 2.2, "kind": "hopper2", "pos": [-28.0, -30.0, 0.0], "rot": 0, "dims": [2.5, 3.0, 2.6], "skid": [3.0, 3.6, 0.5], "spec_vn": "Miệng +2,60 – máy xúc nạp từ mặt sân. Cấp liệu băng biến tần chỉnh 3–10 t/h.", "spec_en": "Lip +2.60 – loader-fed from pad level. VSD belt feeder 3–10 t/h.", "p": {}}, {"tag": "200-ML-01", "vn": "Máy nghiền bi ướt", "en": "Wet overflow/grate ball mill", "model": "MQG 1530 – Ø1,5 × 3,0 m", "kw": 75, "mass": 17.0, "kind": "ballmill", "pos": [-28.0, -41.5, 1.7], "rot": 0, "dims": [3.0, 1.6, 1.6], "skid": [7.0, 4.0, 0.3], "spec_vn": "Trục Bắc–Nam, tâm trục +1,70. Cấp liệu đầu Bắc, xả đầu Nam qua sàng trommel 2 mm. Bộ dẫn động 75 kW, khởi động mềm, phía Đông. Bệ BTCT 8×4×0,5 m – hạng mục bê tông duy nhất đáng kể.", "spec_en": "Axis N–S, centreline +1.70. Feed at north end, discharge at south end through a 2 mm trommel. 75 kW drive, soft-starter, east side. RC pad 8×4×0.5 m – the only significant concrete item.", "p": {}}, {"tag": "200-SU-01", "vn": "Bể hút xả máy nghiền (thép)", "en": "Mill discharge sump (steel)", "model": "1,5×1,5×1,8 m = 4 m³", "kw": 0, "mass": 0.8, "kind": "sump", "pos": [-28.0, -45.6, -0.8], "rot": 0, "dims": [1.5, 1.5, 1.8], "skid": [0, 0, 0], "spec_vn": "Thùng thép trong hố nông −0,8 m; mức bùn +0,6; nước bổ sung qua van phao.", "spec_en": "Steel tank in a shallow −0.8 m pit; slurry level +0.6; make-up water via float valve.", "p": {}}, {"tag": "200-PP-01", "vn": "Bơm bùn cấp máy tuyển", "en": "Concentrator feed slurry pump", "model": "3/2 C-AH, 40 m³/h @ 15 m", "kw": 15, "mass": 0.6, "kind": "pump", "pos": [-30.4, -46.3, 0.0], "rot": 0, "dims": [1.2, 0.7, 0.9], "skid": [1.4, 0.9, 0.2], "spec_vn": "Hút ngập từ SU-01; 1 bơm chạy + 1 bơm dự phòng để trong kho.", "spec_en": "Flooded suction from SU-01; 1 duty + 1 spare kept in store.", "p": {}}, {"tag": "300-CN-01", "vn": "Máy tuyển ly tâm (Knelson-type)", "en": "Centrifugal concentrator (Knelson-type)", "model": "STLB 60 – bát Ø600 mm, 8–12 t/h", "kw": 4, "mass": 1.3, "kind": "concentrator", "pos": [-20.0, -46.0, 2.8], "rot": 0, "dims": [1.7, 1.3, 1.6], "skid": [3.6, 3.0, 2.8], "spec_vn": "Trên sàn thép +2,80 để đuôi tự chảy về hồ; nước sôi 7–15 m³/h ở 0,3 bar; xả tinh quặng 2–4 giờ/lần.", "spec_en": "On +2.80 steel platform so tails flow by gravity to the pond; fluidising water 7–15 m³/h at 0.3 bar; concentrate flush every 2–4 h.", "p": {}}, {"tag": "300-TK-01", "vn": "Thùng tinh quặng khuấy 1 m³ + bơm", "en": "Agitated concentrate tank 1 m³ + pump", "model": "Ø1,0×1,3 m; khuấy 1,5 kW; bơm 1,5 kW", "kw": 3, "mass": 0.5, "kind": "tank1", "pos": [-19.0, -43.2, 0.0], "rot": 0, "dims": [1.0, 1.0, 1.4], "skid": [0, 0, 0], "spec_vn": "Nhận tinh quặng xả từ CN-01, bơm đều lên bàn đãi.", "spec_en": "Receives concentrator flush, pumps steadily to the shaking table.", "p": {}}, {"tag": "300-ST-01", "vn": "Bàn đãi (6-S)", "en": "Shaking table (6-S)", "model": "Mặt bàn 4,5×1,85 m; 0,3–1,0 t/h", "kw": 1.1, "mass": 1.2, "kind": "table", "pos": [-12.0, -47.0, 0.4], "rot": 0, "dims": [5.6, 1.9, 1.0], "skid": [0, 0, 0], "spec_vn": "Trong nhà mái tôn 8×6 m; nền phẳng đệm cao su. Tinh → phòng vàng; trung gian → quay lại CN-01; đuôi → bể SU-01.", "spec_en": "In an 8×6 m roofed shed; level pad on rubber mounts. Concentrate → gold room; middlings → back to CN-01; tails → sump SU-01.", "p": {}}, {"tag": "300-GR-01", "vn": "Phòng vàng – container 20 ft (nấu luyện)", "en": "Gold room – 20 ft container (smelting)", "model": "6,0×2,4 m; lò nấu 10 kW", "kw": 10, "mass": 3.0, "kind": "container", "pos": [-12.0, -53.5, 0.0], "rot": 0, "dims": [6.06, 2.44, 2.6], "skid": [0, 0, 0], "spec_vn": "Trong hàng rào an ninh 16,5×15 m cùng bàn đãi và máy tuyển; quy tắc 2 người.", "spec_en": "Inside the 16.5×15 m security fence with the table and concentrator; two-person rule.", "p": {}}, {"tag": "500-GS-01", "vn": "Máy phát điện 1 – khu đập sàng", "en": "Genset 1 – crushing block", "model": "200 kVA prime, container cách âm", "kw": 0, "mass": 4.5, "kind": "genset", "pos": [0.0, -33.0, 0.0], "rot": 0, "dims": [6.06, 2.44, 2.6], "skid": [0, 0, 0], "spec_vn": "Cấp cho FD-01, CR-01/02/03, SC-01, CV-01…05: chạy ≈ 125 kW.", "spec_en": "Feeds FD-01, CR-01/02/03, SC-01, CV-01…05: ≈ 125 kW running.", "p": {}}, {"tag": "500-GS-02", "vn": "Máy phát điện 2 – khu nghiền tuyển", "en": "Genset 2 – milling block", "model": "250 kVA prime, container cách âm", "kw": 0, "mass": 5.0, "kind": "genset", "pos": [0.0, -37.0, 0.0], "rot": 0, "dims": [6.06, 2.44, 2.6], "skid": [0, 0, 0], "spec_vn": "Cấp cho ML-01, PP-01, CN-01, bàn đãi, bơm nước, phòng vàng, chiếu sáng: ≈ 105 kW.", "spec_en": "Feeds ML-01, PP-01, CN-01, table, water pumps, gold room, lighting: ≈ 105 kW.", "p": {}}, {"tag": "500-FT-01", "vn": "Bồn dầu tự bao 5 m³", "en": "Self-bunded diesel tank 5 m³", "model": "3,0×1,5×1,7 m + bơm cấp", "kw": 0.5, "mass": 1.2, "kind": "fueltank", "pos": [0.0, -41.5, 0.0], "rot": 0, "dims": [3.0, 1.5, 1.7], "skid": [0, 0, 0], "spec_vn": "Tiêu thụ ≈ 0,9 m³/ngày → đủ ≈ 5 ngày; nạp bằng xe bồn.", "spec_en": "≈ 0.9 m³/day consumption → ≈ 5 days autonomy; filled by bowser.", "p": {}}, {"tag": "500-EH-01", "vn": "Tủ điện MCC – container 10 ft", "en": "MCC – 10 ft container e-house", "model": "3,0×2,4 m; 2 tủ MCC + đồng bộ", "kw": 0, "mass": 2.5, "kind": "container10", "pos": [6.0, -35.0, 0.0], "rot": 0, "dims": [3.0, 2.44, 2.6], "skid": [0, 0, 0], "spec_vn": "MCC-1 (đập sàng) và MCC-2 (nghiền tuyển); cáp trên máng có nắp.", "spec_en": "MCC-1 (crushing) and MCC-2 (milling); cables on covered ground trays.", "p": {}}, {"tag": "600-TK-02", "vn": "Bồn nước công nghệ 2 × 10 m³", "en": "Process-water tanks 2 × 10 m³", "model": "HDPE Ø2,3×2,6 m trên giá thép cao 3,0 m", "kw": 0, "mass": 1.6, "kind": "watertanks", "pos": [-34.0, -35.5, 3.0], "rot": 0, "dims": [5.0, 2.4, 2.6], "skid": [5.2, 2.6, 3.0], "spec_vn": "Tự chảy 3 m cột nước + bơm tăng áp 2,2 kW cho máy tuyển.", "spec_en": "3 m gravity head + 2.2 kW booster pump for the concentrator.", "p": {}}, {"tag": "700-WS-01", "vn": "Xưởng + kho phụ tùng – container 20 ft", "en": "Workshop + spares – 20 ft container", "model": "6,0×2,4 m", "kw": 3, "mass": 3.0, "kind": "container", "pos": [16.0, -40.0, 0.0], "rot": 0, "dims": [6.06, 2.44, 2.6], "skid": [0, 0, 0], "spec_vn": "", "spec_en": "", "p": {}}, {"tag": "700-OF-01", "vn": "Văn phòng + sơ cứu – container 20 ft", "en": "Office + first aid – 20 ft container", "model": "6,0×2,4 m", "kw": 2, "mass": 3.0, "kind": "container", "pos": [16.0, -46.0, 0.0], "rot": 0, "dims": [6.06, 2.44, 2.6], "skid": [0, 0, 0], "spec_vn": "", "spec_en": "", "p": {}}], "CV": [{"tag": "100-CV-01", "vn": "Băng tải 1: máy đập sơ cấp → thứ cấp", "en": "Conveyor 1: primary → secondary jaw", "belt": "B500", "tail": [34.4, 0.0, 0.55], "head": [22.0, 0.0, 3.9], "kw": 4, "L": 12.844551374026263, "lift": 3.3499999999999996, "horiz": 12.399999999999999, "ang": 15.11818811479888}, {"tag": "100-CV-02", "vn": "Băng tải 2: máy đập thứ cấp → máy côn", "en": "Conveyor 2: secondary jaw → cone", "belt": "B500", "tail": [21.9, 0.0, 0.55], "head": [7.9, 0.0, 4.2], "kw": 4, "L": 14.467981891058612, "lift": 3.6500000000000004, "horiz": 13.999999999999998, "ang": 14.612543692163301}, {"tag": "100-CV-03", "vn": "Băng tải 3: máy côn → sàng rung", "en": "Conveyor 3: cone → screen", "belt": "B500", "tail": [7.5, -1.0, 0.55], "head": [7.5, -15.5, 4.9], "kw": 5.5, "L": 15.138444437920299, "lift": 4.3500000000000005, "horiz": 14.5, "ang": 16.69924423399362}, {"tag": "100-CV-04", "vn": "Băng tải 4: hồi trên sàng → băng 2 (mạch kín)", "en": "Conveyor 4: oversize return → conveyor 2 (closed circuit)", "belt": "B400", "tail": [9.0, -20.5, 0.5], "head": [15.0, 0.0, 3.3], "kw": 4, "L": 21.542748199800318, "lift": 2.8, "horiz": 21.360009363293827, "ang": 7.46809751168922}, {"tag": "100-CV-05", "vn": "Băng tải 5: dưới sàng → đống quặng mịn", "en": "Conveyor 5: undersize → fine-ore stockpile", "belt": "B500", "tail": [9.5, -18.5, 0.45], "head": [-9.0, -22.0, 6.3], "kw": 5.5, "L": 19.716046763994047, "lift": 5.85, "horiz": 18.828170383762732, "ang": 17.26026234717649}, {"tag": "200-CV-06", "vn": "Băng tải 6: phễu HP-02 → máy nghiền (có cân băng)", "en": "Conveyor 6: hopper HP-02 → mill (with belt scale)", "belt": "B500", "tail": [-28.0, -32.0, 0.5], "head": [-28.0, -38.6, 2.9], "kw": 3, "L": 7.022819946431776, "lift": 2.4, "horiz": 6.600000000000001, "ang": 19.983106521899973}], "CIVIL": [["pad", "Sân nhà máy san gạt, đầm chặt, lớp sỏi 150 mm dưới thiết bị và đường xe", "Graded, compacted plant pad; 150 mm gravel under equipment and loader routes", [-38, -58, 44, 10], 0.0], ["ramp", "Sân đổ quặng đắp đất +2,50, mặt 22×16 m, dốc lên 1:8 phía Đông", "ROM tipping platform, fill to +2.50, 22×16 m top, 1:8 ramp from the east", [41, -8, 63, 8], 2.5], ["gabion", "Tường rọ đá 2 tầng (1,0 m + 1,0 m) dài 16 m tại mặt Tây sân đổ", "Two-tier gabion wall (1.0 + 1.0 m), 16 m long, west face of ramp", [40.0, -8, 41.0, 8], 2.5], ["millpad", "Bệ BTCT máy nghiền 8×4×0,5 m (C30)", "RC ball-mill pad 8×4×0.5 m (C30)", [-32, -45.5, -24, -37.5], 0.3], ["shed", "Nhà bàn đãi khung thép mái tôn 8×6 m, cao 3,5 m", "Shaking-table shed, steel frame, sheet roof, 8×6 m, 3.5 m high", [-16, -50, -8, -44], 3.5], ["fence_gold", "Hàng rào an ninh phòng vàng 2,4 m + kẽm gai, 16,5×15 m", "Gold-area security fence 2.4 m + razor wire, 16.5×15 m", [-22.5, -56, -6, -41], 2.4], ["fence", "Hàng rào bao nhà máy 1,8 m lưới B40, 102×70 m", "Plant perimeter fence 1.8 m chain-link, 102×70 m", [-38, -60, 64, 10], 1.8]], "PONDS": [["A", -35, -110, 35, -70, -5.0, -0.7], ["B", -35, -155, 35, -115, -7.0, -2.9]], "SUMP": [38, -135]};
+// Chifunde mobile pilot plant – parametric 3D scene builder (three.js r128, global THREE)
+// Plant grid: X east, Y north, Z up (m)  ->  three.js: (X, Z, -Y)
+function buildPlant(THREE, scene, L, opts) {
+  const P = (x, y, z) => new THREE.Vector3(x, z, -y);
+  const rnd = (() => { let s = 12345; return () => { s = (s * 16807) % 2147483647; return (s - 1) / 2147483646; }; })();
+  const pick = [];      // groups with userData for picking
+  const labels = [];    // {pos, text}
+
+  // ------------------------------------------------------------ textures
+  function canvasTex(size, draw, repeat) {
+    const c = document.createElement("canvas"); c.width = c.height = size;
+    const g = c.getContext("2d"); draw(g, size);
+    const t = new THREE.CanvasTexture(c); t.wrapS = t.wrapT = THREE.RepeatWrapping;
+    if (repeat) t.repeat.set(repeat, repeat); t.anisotropy = 4; return t;
+  }
+  function noise(g, s, base, amp, n) {
+    g.fillStyle = base; g.fillRect(0, 0, s, s);
+    const img = g.getImageData(0, 0, s, s), d = img.data;
+    for (let i = 0; i < d.length; i += 4) { const v = (rnd() - 0.5) * 2 * amp; d[i] += v; d[i + 1] += v; d[i + 2] += v; }
+    g.putImageData(img, 0, 0);
+    for (let k = 0; k < (n || 0); k++) { g.fillStyle = `rgba(0,0,0,${0.04 + rnd() * 0.08})`; const r = 2 + rnd() * s * 0.08; g.beginPath(); g.arc(rnd() * s, rnd() * s, r, 0, 6.28); g.fill(); }
+  }
+  const T = {};
+  T.paint = (col) => canvasTex(256, (g, s) => { noise(g, s, col, 10, 6); for (let i = 0; i < 25; i++) { g.strokeStyle = `rgba(255,255,255,${0.05 + rnd() * 0.1})`; g.lineWidth = 1; g.beginPath(); g.moveTo(rnd() * s, rnd() * s); g.lineTo(rnd() * s, rnd() * s); g.stroke(); } for (let i = 0; i < 6; i++) { g.fillStyle = `rgba(120,60,20,${0.12 + rnd() * 0.2})`; g.beginPath(); g.ellipse(rnd() * s, rnd() * s, 6 + rnd() * 14, 3 + rnd() * 8, rnd() * 3, 0, 6.28); g.fill(); } }, 1);
+  T.galv = canvasTex(256, (g, s) => { noise(g, s, "#b9bdc0", 14, 0); for (let i = 0; i < 40; i++) { g.fillStyle = `rgba(255,255,255,${0.08 + rnd() * 0.1})`; g.beginPath(); g.moveTo(rnd() * s, rnd() * s); for (let k = 0; k < 4; k++) g.lineTo(rnd() * s, rnd() * s); g.fill(); } }, 1);
+  T.rust = canvasTex(256, (g, s) => { noise(g, s, "#8a5a36", 22, 30); g.fillStyle = "rgba(60,40,30,0.5)"; for (let i = 0; i < 20; i++) g.fillRect(rnd() * s, rnd() * s, 2 + rnd() * 10, 20 + rnd() * 60); }, 2);
+  T.concrete = canvasTex(256, (g, s) => { noise(g, s, "#a6a39c", 12, 40); }, 2);
+  T.gravel = canvasTex(256, (g, s) => { noise(g, s, "#a89a80", 18, 0); for (let i = 0; i < 700; i++) { const v = 90 + rnd() * 110; g.fillStyle = `rgb(${v},${v - 8},${v - 20})`; g.beginPath(); g.arc(rnd() * s, rnd() * s, 0.8 + rnd() * 2.2, 0, 6.28); g.fill(); } }, 1);
+  T.ore = canvasTex(256, (g, s) => { noise(g, s, "#7c746b", 20, 0); for (let i = 0; i < 900; i++) { const v = 60 + rnd() * 120; g.fillStyle = `rgb(${v},${v - 5},${v - 12})`; g.beginPath(); g.arc(rnd() * s, rnd() * s, 0.8 + rnd() * 2.5, 0, 6.28); g.fill(); } }, 6);
+  T.soil = canvasTex(256, (g, s) => { noise(g, s, "#8f6b47", 16, 25); }, 1);
+  T.belt = canvasTex(128, (g, s) => { noise(g, s, "#2b2b2b", 8, 0); }, 1);
+  T.corr = canvasTex(256, (g, s) => { g.fillStyle = "#ffffff"; g.fillRect(0, 0, s, s); for (let x = 0; x < s; x += 16) { const gr = g.createLinearGradient(x, 0, x + 16, 0); gr.addColorStop(0, "rgba(0,0,0,0.25)"); gr.addColorStop(0.5, "rgba(255,255,255,0.1)"); gr.addColorStop(1, "rgba(0,0,0,0.25)"); g.fillStyle = gr; g.fillRect(x, 0, 16, s); } }, 1);
+  T.roof = canvasTex(256, (g, s) => { g.fillStyle = "#9da3a8"; g.fillRect(0, 0, s, s); for (let x = 0; x < s; x += 24) { g.fillStyle = "rgba(0,0,0,0.28)"; g.fillRect(x, 0, 5, s); g.fillStyle = "rgba(255,255,255,0.25)"; g.fillRect(x + 8, 0, 4, s); } }, 1);
+  T.grating = canvasTex(128, (g, s) => { g.fillStyle = "#6f7478"; g.fillRect(0, 0, s, s); g.fillStyle = "#2a2d30"; for (let x = 0; x < s; x += 8) for (let y = 0; y < s; y += 24) g.fillRect(x + 2, y + 3, 4, 18); }, 1);
+  T.mesh = canvasTex(128, (g, s) => { g.clearRect(0, 0, s, s); g.strokeStyle = "#b8bcc0"; g.lineWidth = 1.5; g.beginPath(); for (let i = -s; i < 2 * s; i += 16) { g.moveTo(i, 0); g.lineTo(i + s, s); g.moveTo(i, s); g.lineTo(i + s, 0); } g.stroke(); }, 1);
+  T.perf = canvasTex(128, (g, s) => { g.fillStyle = "#6a6258"; g.fillRect(0, 0, s, s); g.fillStyle = "#1b1916"; for (let x = 6; x < s; x += 12) for (let y = 6; y < s; y += 12) { g.beginPath(); g.arc(x, y, 3.5, 0, 6.28); g.fill(); } }, 1);
+  T.gabion = canvasTex(256, (g, s) => { noise(g, s, "#8d8478", 10, 0); for (let i = 0; i < 90; i++) { const v = 100 + rnd() * 90; g.fillStyle = `rgb(${v},${v - 6},${v - 14})`; g.beginPath(); g.ellipse(rnd() * s, rnd() * s, 10 + rnd() * 14, 8 + rnd() * 10, rnd() * 3, 0, 6.28); g.fill(); g.strokeStyle = "rgba(0,0,0,0.35)"; g.stroke(); } g.strokeStyle = "rgba(230,230,230,0.7)"; g.lineWidth = 1.2; g.beginPath(); for (let i = -s; i < 2 * s; i += 26) { g.moveTo(i, 0); g.lineTo(i + s, s); g.moveTo(i, s); g.lineTo(i + s, 0); } g.stroke(); }, 1);
+  T.water = canvasTex(256, (g, s) => { noise(g, s, "#6f9aa8", 10, 0); }, 4);
+  T.mud = canvasTex(256, (g, s) => { noise(g, s, "#a68f6e", 12, 15); }, 4);
+  T.grass = canvasTex(256, (g, s) => { noise(g, s, "#a39a6a", 22, 0); for (let i = 0; i < 400; i++) { g.fillStyle = `rgba(${70 + rnd() * 60},${90 + rnd() * 50},${30 + rnd() * 30},0.5)`; g.fillRect(rnd() * s, rnd() * s, 1.5, 3 + rnd() * 5); } }, 1);
+  function textTex(text, w, h, bg, fg, size) {
+    const c = document.createElement("canvas"); c.width = w; c.height = h; const g = c.getContext("2d");
+    g.fillStyle = bg; g.fillRect(0, 0, w, h); g.fillStyle = fg; g.font = `bold ${size}px Arial`; g.textAlign = "center"; g.textBaseline = "middle";
+    text.split("\n").forEach((t, i, a) => g.fillText(t, w / 2, h / 2 + (i - (a.length - 1) / 2) * size * 1.15));
+    const t = new THREE.CanvasTexture(c); return t;
+  }
+
+  // ------------------------------------------------------------ materials
+  const std = (o) => new THREE.MeshStandardMaterial(Object.assign({ roughness: 0.65, metalness: 0.25 }, o));
+  const M = {
+    crusher: std({ map: T.paint("#4b6b88"), color: 0xcfd8e0 }),
+    cone: std({ map: T.paint("#2c4a66"), color: 0xd8e0e8 }),
+    screen: std({ map: T.paint("#c99a1e"), color: 0xe8dcc0 }),
+    mill: std({ map: T.paint("#3d6a9a"), color: 0xd6dde6, roughness: 0.55 }),
+    motor: std({ map: T.paint("#1f3e73"), color: 0xc8d0dc }),
+    yellow: std({ map: T.paint("#d9b21b"), color: 0xe8e0c0 }),
+    galv: std({ map: T.galv, color: 0xf0f0f0, metalness: 0.45, roughness: 0.5 }),
+    steelDark: std({ color: 0x4a4e52, metalness: 0.5, roughness: 0.55 }),
+    rust: std({ map: T.rust, color: 0xd8c8b8, roughness: 0.85, metalness: 0.15 }),
+    hopper: std({ map: T.paint("#7f6a4a"), color: 0xd8ccb8, roughness: 0.8 }),
+    concrete: std({ map: T.concrete, color: 0xe8e4dc, roughness: 0.95, metalness: 0 }),
+    belt: std({ map: T.belt, color: 0x9a9a9a, roughness: 0.9, metalness: 0 }),
+    roller: std({ color: 0x8a8f94, metalness: 0.5, roughness: 0.45 }),
+    ore: std({ map: T.ore, color: 0xe0d8d0, roughness: 1, metalness: 0 }),
+    grating: std({ map: T.grating, color: 0xffffff, metalness: 0.4, roughness: 0.6 }),
+    rail: std({ color: 0xd9c22a, metalness: 0.3, roughness: 0.6 }),
+    white: std({ map: T.corr, color: 0xececec, roughness: 0.6, metalness: 0.2 }),
+    green: std({ map: T.corr, color: 0x3d6b46, roughness: 0.6, metalness: 0.2 }),
+    grey: std({ map: T.corr, color: 0x9aa0a6, roughness: 0.6, metalness: 0.2 }),
+    genset: std({ map: T.corr, color: 0xe8e2cc, roughness: 0.55, metalness: 0.25 }),
+    roof: std({ map: T.roof, color: 0xffffff, metalness: 0.4, roughness: 0.55, side: THREE.DoubleSide }),
+    hdpe: std({ color: 0x2a3d33, roughness: 0.7, metalness: 0.0 }),
+    bedding: std({ map: T.ore, color: 0x9a9a9a, roughness: 1, metalness: 0 }),
+    hdpeBlue: std({ color: 0x1f3d6b, roughness: 0.45, metalness: 0.1 }),
+    pipe: std({ color: 0x23272b, roughness: 0.5, metalness: 0.2 }),
+    gabion: std({ map: T.gabion, color: 0xffffff, roughness: 1, metalness: 0 }),
+    perf: std({ map: T.perf, color: 0xffffff, roughness: 0.8, metalness: 0.2, side: THREE.DoubleSide }),
+    fence: std({ map: T.mesh, transparent: true, alphaTest: 0.3, side: THREE.DoubleSide, color: 0xdddddd, roughness: 0.6, metalness: 0.4 }),
+    black: std({ color: 0x1d1d1d, roughness: 0.8 }),
+    red: std({ color: 0xb52d2d, roughness: 0.6 }),
+    glass: std({ color: 0x9fc4d8, roughness: 0.2, metalness: 0.1, transparent: true, opacity: 0.5 }),
+    slurry: std({ map: T.mud, color: 0xffffff, roughness: 0.4, metalness: 0.05, transparent: true, opacity: 0.93 }),
+    water: std({ map: T.water, color: 0xa0c8d0, roughness: 0.15, metalness: 0.3, transparent: true, opacity: 0.78 }),
+    waterB: std({ map: T.water, color: 0x7fb0b8, roughness: 0.12, metalness: 0.3, transparent: true, opacity: 0.8 }),
+    trunk: std({ color: 0x5a4632, roughness: 0.9 }),
+    leaf: std({ color: 0x4f7a3a, roughness: 0.9 }),
+    leaf2: std({ color: 0x6f8a3c, roughness: 0.9 }),
+  };
+  M.mesh = M.fence;
+  const shadowed = (m, cast = true, recv = true) => { m.castShadow = cast; m.receiveShadow = recv; return m; };
+
+  // ------------------------------------------------------------ primitives (plant coordinates)
+  function box(sx, sy, sz, mat, cx, cy, z0, g) {
+    const m = new THREE.Mesh(new THREE.BoxGeometry(sx, sz, sy), mat); m.position.copy(P(cx, cy, z0 + sz / 2)); (g || scene).add(shadowed(m)); return m;
+  }
+  function boxc(sx, sy, sz, mat, cx, cy, cz, g) { return box(sx, sy, sz, mat, cx, cy, cz - sz / 2, g); }
+  function cyl(r, len, mat, cx, cy, cz, axis, g, rt) {
+    const geo = new THREE.CylinderGeometry(rt === undefined ? r : rt, r, len, 28);
+    const m = new THREE.Mesh(geo, mat);
+    if (axis === "x") m.rotation.z = Math.PI / 2; else if (axis === "y") m.rotation.x = Math.PI / 2;
+    m.position.copy(P(cx, cy, cz)); (g || scene).add(shadowed(m)); return m;
+  }
+  function frustum(topX, topY, botX, botY, h, mat, cx, cy, z0, g) {
+    // rectangular hopper: 4 side quads (open top & bottom)
+    const geo = new THREE.BufferGeometry();
+    const tx = topX / 2, ty = topY / 2, bx = botX / 2, by = botY / 2;
+    const v = [];
+    const quad = (a, b, c, d) => { v.push(...a, ...b, ...c, ...a, ...c, ...d); };
+    const A = [[-bx, -by, 0], [bx, -by, 0], [bx, by, 0], [-bx, by, 0]], B = [[-tx, -ty, h], [tx, -ty, h], [tx, ty, h], [-tx, ty, h]];
+    for (let i = 0; i < 4; i++) { const j = (i + 1) % 4; quad(A[i], A[j], B[j], B[i]); }
+    const arr = new Float32Array(v.length); for (let i = 0; i < v.length; i += 3) { arr[i] = v[i]; arr[i + 1] = v[i + 2]; arr[i + 2] = -v[i + 1]; }
+    geo.setAttribute("position", new THREE.BufferAttribute(arr, 3)); geo.computeVertexNormals();
+    const m = new THREE.Mesh(geo, mat); m.material = mat.clone(); m.material.side = THREE.DoubleSide; m.position.copy(P(cx, cy, z0)); (g || scene).add(shadowed(m)); return m;
+  }
+  function tube(pts, r, mat, g) {
+    const path = new THREE.CurvePath();
+    for (let i = 0; i < pts.length - 1; i++) path.add(new THREE.LineCurve3(P(...pts[i]), P(...pts[i + 1])));
+    const m = new THREE.Mesh(new THREE.TubeGeometry(path, pts.length * 6, r, 12, false), mat); (g || scene).add(shadowed(m)); return m;
+  }
+  function legs(sx, sy, h, cx, cy, z0, mat, g, r) {
+    const rr = r || 0.08;
+    for (const dx of [-1, 1]) for (const dy of [-1, 1]) box(rr * 2, rr * 2, h, mat, cx + dx * sx / 2, cy + dy * sy / 2, z0, g);
+    // top frame + one brace each side
+    box(sx + rr * 2, rr * 2, rr * 2, mat, cx, cy - sy / 2, z0 + h - rr * 2, g); box(sx + rr * 2, rr * 2, rr * 2, mat, cx, cy + sy / 2, z0 + h - rr * 2, g);
+    box(rr * 2, sy, rr * 2, mat, cx - sx / 2, cy, z0 + h - rr * 2, g); box(rr * 2, sy, rr * 2, mat, cx + sx / 2, cy, z0 + h - rr * 2, g);
+    if (h > 1.2) { box(sx + rr * 2, rr * 1.4, rr * 1.4, mat, cx, cy - sy / 2, z0 + h * 0.45, g); box(sx + rr * 2, rr * 1.4, rr * 1.4, mat, cx, cy + sy / 2, z0 + h * 0.45, g); }
+  }
+  function handrail(pts, z0, g, h = 1.1) {
+    for (let i = 0; i < pts.length; i++) { const p = pts[i]; cyl(0.025, h, M.rail, p[0], p[1], z0 + h / 2, "z", g);
+      if (i < pts.length - 1) { const q = pts[i + 1]; for (const hh of [h, h * 0.5]) tube([[p[0], p[1], z0 + hh], [q[0], q[1], z0 + hh]], 0.02, M.rail, g); } }
+  }
+  function label(x, y, z, text) { labels.push({ pos: P(x, y, z), text }); }
+  function group(e) { const g = new THREE.Group(); g.userData = e; scene.add(g); pick.push(g); return g; }
+  const rot = (g, deg, cx, cy) => { g.rotation.y = -deg * Math.PI / 180; };
+
+  // ------------------------------------------------------------ terrain
+  const pad = L.CIVIL.find(c => c[0] === "pad")[3];
+  function inRect(x, y, r) { return x >= r[0] && y >= r[1] && x <= r[2] && y <= r[3]; }
+  function natural(x, y) {
+    let z = 0;
+    if (y > 10) z += (y - 10) * 0.03;
+    if (y < -58) z += (y + 58) * 0.045;
+    if (x > 66) z += (x - 66) * 0.02;
+    if (x < -40) z += (x + 40) * 0.02;
+    z -= 1.4 * Math.exp(-Math.pow((x + 92) / 7, 2));             // stream valley
+    z += 0.6 * Math.sin(x * 0.045 + 1.3) * Math.cos(y * 0.038) + 0.35 * Math.sin(x * 0.11 + y * 0.07) + 0.2 * Math.cos(x * 0.19 - y * 0.16);
+    return z;
+  }
+  function rampH(x, y) {
+    const r = L.CIVIL.find(c => c[0] === "ramp")[3];
+    let h = -9;
+    if (x >= r[0] - 1 && x <= r[2] + 20) {
+      let top = 2.5; if (x > r[2]) top = 2.5 - (x - r[2]) / 8;
+      const dyOut = Math.max(0, Math.abs(y) - 8); h = top - dyOut / 1.5;
+    }
+    return h;
+  }
+  function pondH(x, y, nat) {
+    for (const p of L.PONDS) {
+      const [n, x0, y0, x1, y1] = p; const dIn = Math.min(x - x0, x1 - x, y - y0, y1 - y);
+      if (dIn < -3) continue;
+      const crest = nat + 1.5;
+      if (dIn < 0) return crest * ((dIn + 3) / 3) + nat * (1 - (dIn + 3) / 3);
+      if (dIn < 3) return crest;
+      return Math.max(nat - 3.5, crest - (dIn - 3) / 2);
+    }
+    return null;
+  }
+  function road(x, y) { // haul road from ramp uphill to the NE, 7 m wide
+    const ax = 62, ay = 0, bx = 120, by = 28; const t = Math.max(0, Math.min(1, ((x - ax) * (bx - ax) + (y - ay) * (by - ay)) / ((bx - ax) ** 2 + (by - ay) ** 2)));
+    const d = Math.hypot(x - (ax + t * (bx - ax)), y - (ay + t * (by - ay))); return d < 3.5;
+  }
+  function height(x, y) {
+    let nat = natural(x, y);
+    if (inRect(x, y, pad)) nat = 0;
+    else { const d = Math.min(Math.abs(x - pad[0]), Math.abs(x - pad[2]), Math.abs(y - pad[1]), Math.abs(y - pad[3])); if (d < 4 && x > pad[0] - 4 && x < pad[2] + 4 && y > pad[1] - 4 && y < pad[3] + 4) nat = nat * d / 4; }
+    if (road(x, y)) nat = Math.max(nat, 0 + (x - 62) * 0.02 + Math.max(0, y) * 0.03) ;
+    const ph = pondH(x, y, natural(x, y)); if (ph !== null) nat = ph;
+    return Math.max(nat, rampH(x, y));
+  }
+  (function terrain() {
+    const x0 = -330, x1 = 430, y0 = -420, y1 = 330, s = 2.0;
+    const nx = Math.round((x1 - x0) / s), ny = Math.round((y1 - y0) / s);
+    const pos = [], col = [], uv = [], idx = [];
+    const c1 = new THREE.Color();
+    for (let j = 0; j <= ny; j++) for (let i = 0; i <= nx; i++) {
+      const x = x0 + i * s, y = y0 + j * s, z = height(x, y);
+      pos.push(x, z, -y); uv.push(x / 2.2, y / 2.2);
+      let c;
+      if (inRect(x, y, pad)) c = c1.set(0xb8ab92);
+      else if (road(x, y)) c = c1.set(0x9c8c74);
+      else if (rampH(x, y) > natural(x, y) - 0.05 && rampH(x, y) > -1) c = c1.set(0xa07a55);
+      else if (pondH(x, y, natural(x, y)) !== null) c = c1.set(0xa08a6a);
+      else c = c1.set(0x9a9464).lerp(new THREE.Color(0x7f8a52), rnd() * 0.5);
+      col.push(c.r, c.g, c.b);
+    }
+    for (let j = 0; j < ny; j++) for (let i = 0; i < nx; i++) { const a = j * (nx + 1) + i, b = a + 1, c = a + nx + 1, d = c + 1; idx.push(a, b, c, b, d, c); }
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3)); geo.setAttribute("color", new THREE.Float32BufferAttribute(col, 3));
+    geo.setAttribute("uv", new THREE.Float32BufferAttribute(uv, 2)); geo.setIndex(idx); geo.computeVertexNormals();
+    const m = new THREE.Mesh(geo, std({ map: T.gravel, vertexColors: true, roughness: 1, metalness: 0 })); m.receiveShadow = true; scene.add(m);
+    // pond water / slurry, stream
+    for (const p of L.PONDS) { const [n, x0, y0, x1, y1, , wl] = p; const nat = natural((x0 + x1) / 2, (y0 + y1) / 2);
+      const w = new THREE.Mesh(new THREE.PlaneGeometry(x1 - x0 - 8, y1 - y0 - 8), n === "A" ? M.slurry : M.waterB); w.rotation.x = -Math.PI / 2; w.position.copy(P((x0 + x1) / 2, (y0 + y1) / 2, nat + 0.7)); w.receiveShadow = true; scene.add(w); }
+    const st = new THREE.Mesh(new THREE.PlaneGeometry(4, 270), M.water); st.rotation.x = -Math.PI / 2; st.position.copy(P(-92, -50, natural(-92, -50) + 0.05)); scene.add(st);
+  })();
+  // trees
+  function tree(x, y, sc) { const z = height(x, y); const g = new THREE.Group(); const h = 2.5 * sc;
+    cyl(0.12 * sc, h, M.trunk, x, y, z + h / 2, "z", g);
+    const m = new THREE.Mesh(new THREE.SphereGeometry(1.4 * sc, 10, 8), rnd() > 0.5 ? M.leaf : M.leaf2); m.scale.y = 0.7; m.position.copy(P(x, y, z + h + 0.6 * sc)); shadowed(m); g.add(m);
+    const m2 = new THREE.Mesh(new THREE.SphereGeometry(1.0 * sc, 9, 7), M.leaf); m2.position.copy(P(x + 0.8 * sc, y - 0.5 * sc, z + h + 0.2 * sc)); shadowed(m2); g.add(m2); scene.add(g); }
+  for (let i = 0; i < 160; i++) { const x = -135 + rnd() * 280, y = -185 + rnd() * 260;
+    if (inRect(x, y, [pad[0] - 6, pad[1] - 6, pad[2] + 26, pad[3] + 6])) continue; if (road(x, y)) continue;
+    if (L.PONDS.some(p => inRect(x, y, [p[1] - 8, p[2] - 8, p[3] + 8, p[4] + 8]))) continue; if (Math.abs(x + 92) < 5) continue;
+    tree(x, y, 0.7 + rnd() * 1.2); }
+
+  // ------------------------------------------------------------ civil items
+  (function civil() {
+    // gabion wall: 2 tiers, boxes 1x1x1 along y at x 39..40
+    for (let t = 0; t < 2; t++) for (let i = 0; i < 16; i++) box(1.0, 1.0, 1.0, M.gabion, 40.5, -7.5 + i, t * 1.0 + 0.4, null);
+    // wheel stop on ramp
+    box(0.5, 14, 0.5, M.concrete, 41.6, 0, 2.5);
+    // mill pad
+    const mp = L.CIVIL.find(c => c[0] === "millpad")[3]; box(mp[2] - mp[0], mp[3] - mp[1], 0.5, M.concrete, (mp[0] + mp[2]) / 2, (mp[1] + mp[3]) / 2, -0.2);
+    // fences
+    const fence = (r, h, mat, razor) => { const pts = [[r[0], r[1]], [r[2], r[1]], [r[2], r[3]], [r[0], r[3]], [r[0], r[1]]];
+      for (let i = 0; i < 4; i++) { const a = pts[i], b = pts[i + 1]; const len = Math.hypot(b[0] - a[0], b[1] - a[1]); const n = Math.ceil(len / 3);
+        for (let k = 0; k <= n; k++) { const x = a[0] + (b[0] - a[0]) * k / n, y = a[1] + (b[1] - a[1]) * k / n; cyl(0.04, h, M.galv, x, y, height(x, y) + h / 2, "z"); }
+        const mx = (a[0] + b[0]) / 2, my = (a[1] + b[1]) / 2; const plane = new THREE.Mesh(new THREE.PlaneGeometry(len, h), mat.clone()); plane.material.map = T.mesh.clone(); plane.material.map.repeat.set(len / 1.2, h / 1.2); plane.material.map.needsUpdate = true;
+        plane.position.copy(P(mx, my, height(mx, my) + h / 2)); plane.rotation.y = -Math.atan2(b[1] - a[1], b[0] - a[0]); scene.add(plane);
+        if (razor) tube([[a[0], a[1], height(a[0], a[1]) + h + 0.15], [b[0], b[1], height(b[0], b[1]) + h + 0.15]], 0.18, M.fence); } };
+    fence(L.CIVIL.find(c => c[0] === "fence")[3], 1.8, M.fence, false);
+    fence(L.CIVIL.find(c => c[0] === "fence_gold")[3], 2.4, M.fence, true);
+    // gate on east fence at y=+3 (ramp access) : two frames
+    box(0.15, 6, 2.0, M.galv, 64, 3, 0);
+    // shed for the table
+    const sh = L.CIVIL.find(c => c[0] === "shed")[3]; const cx = (sh[0] + sh[2]) / 2, cy = (sh[1] + sh[3]) / 2, sx = sh[2] - sh[0], sy = sh[3] - sh[1];
+    box(sx, sy, 0.15, M.concrete, cx, cy, 0);
+    for (const dx of [-1, 0, 1]) for (const dy of [-1, 1]) box(0.14, 0.14, dy > 0 ? 3.9 : 3.4, M.galv, cx + dx * (sx / 2 - 0.2), cy + dy * (sy / 2 - 0.2), 0);
+    const roof = box(sx + 0.6, sy + 0.6, 0.06, M.roof, cx, cy, 3.65); roof.rotation.x = -Math.atan2(0.5, sy);
+    for (const dx of [-1, 1]) { const b = box(0.1, sy + 0.6, 0.15, M.galv, cx + dx * (sx / 2 - 0.2), cy, 3.5); b.rotation.x = -Math.atan2(0.5, sy); }
+    // cable trays (ground, covered) from e-house to crushing MCC & mill
+    tube([[7, -33.5, 0.1], [7, -2, 0.1], [34, -2, 0.1]], 0.05, M.steelDark); tube([[5, -33.5, 0.1], [-33, -33.5, 0.1]], 0.05, M.steelDark);
+    // lighting masts
+    for (const [x, y] of [[30, -4], [-2, -24], [-32, -32], [4, -57], [22, -30]]) { cyl(0.08, 9, M.galv, x, y, height(x, y) + 4.5, "z"); box(0.5, 0.3, 0.2, M.black, x + 0.3, y, height(x, y) + 8.8); }
+  })();
+
+  // ------------------------------------------------------------ equipment builders
+  const B = {};
+  B.hopper = (e, g) => { const [x, y] = e.pos; box(4.4, 5.4, 0.15, M.bedding, x, y, -0.02, g); // frame to 3.4, feeder deck 2.9
+    legs(3.2, 4.2, 3.4, x, y, 0, M.galv, g, 0.1);
+    frustum(3.0, 4.0, 1.0, 2.6, 1.8, M.hopper, x, y, 3.7, g);
+    box(3.2, 4.2, 0.12, M.hopper, x, y, 5.5, g); // top rim
+    for (let i = 0; i <= 12; i++) box(3.2, 0.06, 0.12, M.steelDark, x, y - 2.0 + i / 3, 5.6, g); // grizzly bars 300 mm
+    // feeder: trough under hopper, sloping west 10°, on rubber springs
+    const f = L.E.find(q => q.tag === "100-FD-01"); const tr = boxc(3.8, 0.95, 0.45, M.yellow, f.pos[0], f.pos[1], f.pos[2] + 0.35, g); tr.rotation.z = -10 * Math.PI / 180;
+    for (let i = 0; i < 6; i++) box(1.2, 0.06, 0.12, M.steelDark, f.pos[0] - 1.0, f.pos[1] - 0.4 + i * 0.16, f.pos[2] + 0.55, g); // grizzly section
+    const vm = cyl(0.22, 0.5, M.motor, f.pos[0] + 0.9, f.pos[1], f.pos[2] + 1.0, "y", g); cyl(0.22, 0.5, M.motor, f.pos[0] + 0.3, f.pos[1], f.pos[2] + 1.0, "y", g);
+    for (const dx of [-1.6, 1.6]) for (const dy of [-0.55, 0.55]) cyl(0.12, 0.35, M.black, f.pos[0] + dx, f.pos[1] + dy, f.pos[2] + 0.1, "z", g);
+    box(3.8, 1.3, 0.12, M.galv, f.pos[0], f.pos[1], f.pos[2] - 0.15, g); // feeder support beam
+    // access platform + handrail on north side at +3.4
+    box(3.8, 0.9, 0.05, M.grating, x, y + 2.6, 3.4, g); handrail([[x - 1.9, y + 3.05], [x + 1.9, y + 3.05]], 3.45, g);
+    const st = boxc(0.9, 4.2, 0.08, M.grating, x + 1.6, y + 5.0, 1.8, g); st.rotation.x = Math.atan2(3.4, 4.0);
+    // dust curtain / chute to jaw
+    frustum(1.6, 1.4, 0.9, 0.9, 0.5, M.hopper, 35.2, 0, 2.5, g);
+    label(x, y, 6.6, "100-HP-01 Phễu ROM 8 m³\n100-FD-01 Cấp liệu rung"); };
+  B.jaw = (e, g) => { const [x, y, z] = e.pos; const [Lx, Wy, Hz] = e.dims; const sk = e.skid; box(sk[0] + 1.0, sk[1] + 1.0, 0.15, M.bedding, x, y, -0.02, g);
+    legs(sk[0] - 0.2, sk[1] - 0.2, sk[2], x, y, 0, M.steelDark, g, 0.1); box(sk[0], sk[1], 0.15, M.steelDark, x, y, sk[2] - 0.15, g);
+    box(Lx, Wy, Hz * 0.75, e.mat || M.crusher, x, y, z, g);                                   // main frame
+    box(Lx * 0.5, Wy * 0.9, Hz * 0.25, e.mat || M.crusher, x + Lx * 0.2, y, z + Hz * 0.75, g); // rear top (pitman housing)
+    const sw = boxc(Lx * 0.35, Wy * 0.85, Hz * 0.5, M.steelDark, x - Lx * 0.28, y, z + Hz * 0.55, g); sw.rotation.z = -0.35; // swing/fixed jaw wedge
+    box(Lx * 0.9, Wy * 1.05, 0.12, M.crusher, x, y, z + Hz - 0.05, g);                        // top frame
+    // flywheels on eccentric shaft (axis Y) at rear top
+    for (const dy of [-1, 1]) { const fw = cyl(0.6, 0.14, M.steelDark, x + Lx * 0.2, y + dy * (Wy / 2 + 0.15), z + Hz * 0.78, "y", g); cyl(0.12, 0.3, M.steelDark, x + Lx * 0.2, y + dy * (Wy / 2 + 0.28), z + Hz * 0.78, "y", g);
+      for (let s = 0; s < 6; s++) { const sp = boxc(0.09, 0.05, 1.0, M.steelDark, x + Lx * 0.2, y + dy * (Wy / 2 + 0.15), z + Hz * 0.78, g); sp.rotation.z = s * Math.PI / 6; } }
+    // motor on bracket at side +y with belt guard
+    box(1.0, 0.7, 0.1, M.steelDark, x + Lx * 0.2, y + Wy / 2 + 0.85, z + Hz * 0.15, g);
+    cyl(0.25, 0.7, M.motor, x + Lx * 0.2, y + Wy / 2 + 0.85, z + Hz * 0.15 + 0.35, "x", g); box(0.2, 0.15, 0.15, M.black, x + Lx * 0.2, y + Wy / 2 + 0.85, z + Hz * 0.15 + 0.6, g);
+    box(0.6, 0.12, Hz * 0.9, M.yellow, x + Lx * 0.2, y + Wy / 2 + 0.55, z + Hz * 0.05, g); // belt guard
+    // toggle & tension rods
+    cyl(0.03, Lx * 0.6, M.steelDark, x - 0.1, y + Wy * 0.3, z + Hz * 0.3, "x", g); cyl(0.03, Lx * 0.6, M.steelDark, x - 0.1, y - Wy * 0.3, z + Hz * 0.3, "x", g);
+    // discharge chute to belt
+    frustum(1.2, 1.0, 0.5, 0.5, 0.45, M.hopper, x - 0.2, y, z - 0.45, g);
+    label(x, y, z + Hz + 0.9, e.tag + " " + e.vn.replace("Máy đập hàm ", "Đập hàm ") + "\n" + e.model.split(" –")[0] + " · " + e.kw + " kW"); };
+  B.cone = (e, g) => { const [x, y, z] = e.pos; const sk = e.skid; box(sk[0] + 1.0, sk[1] + 1.0, 0.15, M.bedding, x, y, -0.02, g);
+    legs(sk[0] - 0.2, sk[1] - 0.2, sk[2], x, y, 0, M.steelDark, g, 0.1); box(sk[0], sk[1], 0.15, M.steelDark, x, y, sk[2] - 0.15, g);
+    cyl(0.85, 0.5, M.cone, x, y, z + 0.25, "z", g);                 // main frame base
+    cyl(0.75, 0.55, M.cone, x, y, z + 0.77, "z", g, 0.8);           // body
+    cyl(0.8, 0.45, M.cone, x, y, z + 1.27, "z", g, 0.62);           // adjusting ring / bowl (frustum)
+    cyl(0.5, 0.2, M.steelDark, x, y, z + 1.6, "z", g, 0.5);          // bowl hopper ring
+    cyl(0.45, 0.35, M.hopper, x, y, z + 1.85, "z", g, 0.55);         // feed hopper
+    for (let i = 0; i < 8; i++) { const a = i * Math.PI / 4; cyl(0.045, 0.6, M.steelDark, x + 0.72 * Math.cos(a), y + 0.72 * Math.sin(a), z + 1.0, "z", g); } // tramp release cylinders
+    // countershaft box + pulley +x side, motor on stand
+    box(0.9, 0.45, 0.45, M.cone, x + 1.1, y, z + 0.3, g); cyl(0.32, 0.12, M.steelDark, x + 1.62, y, z + 0.52, "x", g);
+    box(0.6, 0.6, 0.5, M.steelDark, x + 2.2, y, z - 0.5, g); cyl(0.25, 0.75, M.motor, x + 2.2, y, z + 0.32, "x", g); box(1.2, 0.12, 0.9, M.yellow, x + 1.9, y + 0.45, z, g);
+    frustum(1.4, 1.3, 0.5, 0.5, 0.6, M.hopper, x, y - 0.3, z - 0.75, g);     // discharge chute to CV-03
+    label(x, y, z + 3.0, e.tag + " Đập côn " + e.model.split(" –")[0] + " · " + e.kw + " kW"); };
+  B.screen = (e, g) => { const [x, y, z] = e.pos; const sk = e.skid; const a = 18 * Math.PI / 180; box(sk[0] + 1.6, sk[1] + 1.6, 0.15, M.bedding, x, y, -0.02, g);
+    legs(sk[0] - 0.3, sk[1] - 0.3, sk[2], x, y, 0, M.steelDark, g, 0.1);
+    for (const dx of [-1.55, 1.55]) for (const dy of [-0.8, 0.8]) cyl(0.14, 0.4, M.black, x + dx, y + dy, z + 0.2 + (dy > 0 ? 0 : 0), "z", g); // springs (visual)
+    const bg = new THREE.Group(); g.add(bg); bg.position.copy(P(x, y, z + 0.95)); bg.rotation.x = -a; // tilt: feed end (north = -Z in three) higher
+    const sb = (sx, sy, sz, mat, cx, cy, cz) => { const m = new THREE.Mesh(new THREE.BoxGeometry(sx, sz, sy), mat); m.position.set(cx, cz, -cy); shadowed(m); bg.add(m); return m; };
+    sb(0.06, 3.7, 1.1, M.screen, -0.63, 0, 0); sb(0.06, 3.7, 1.1, M.screen, 0.63, 0, 0);           // side plates
+    for (const dy of [-1.7, -0.6, 0.5, 1.6]) sb(1.3, 0.12, 1.1, M.screen, 0, dy, 0);                 // cross stiffeners
+    const deck = sb(1.2, 3.7, 0.04, M.perf, 0, 0, 0.3); const deck2 = sb(1.2, 3.7, 0.04, M.perf, 0, 0, -0.25);
+    const ex = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.22, 1.7, 20), M.steelDark); ex.rotation.z = Math.PI / 2; ex.position.set(0, 0.62, 0); shadowed(ex); bg.add(ex); // exciter
+    sb(0.4, 0.5, 0.5, M.steelDark, 0, 0, 0.55);
+    // motor + belt guard on +x side (fixed frame)
+    box(0.6, 0.6, 0.4, M.steelDark, x + 1.6, y + 0.9, z - 0.2, g); cyl(0.2, 0.55, M.motor, x + 1.6, y + 0.9, z + 0.45, "x", g); box(0.15, 0.7, 1.2, M.yellow, x + 1.15, y + 0.5, z + 0.3, g);
+    // feed box (north end) and chutes
+    frustum(1.4, 1.0, 1.2, 0.6, 0.6, M.hopper, x, y + 2.05, z + 1.95, g);
+    frustum(1.5, 0.9, 0.5, 0.5, 0.9, M.hopper, x + 0.9, y - 2.1, z - 0.3, g);     // oversize chute → CV-04 tail
+    frustum(1.6, 3.6, 0.5, 0.6, 0.9, M.hopper, x + 0.4, y - 0.2, z - 1.15, g);     // undersize hopper → CV-05
+    box(1.8, 1.0, 0.05, M.grating, x - 1.6, y + 1.3, z + 1.0, g); handrail([[x - 2.5, y + 0.8], [x - 2.5, y + 1.8], [x - 0.7, y + 1.8]], z + 1.05, g);
+    label(x, y, z + 3.3, e.tag + " Sàng rung 2YK1237\n20 / 8 mm · 11 kW"); };
+  B.stockpile = (e, g) => { const [x, y] = e.pos; const m = new THREE.Mesh(new THREE.ConeGeometry(6.5, 4.9, 40), M.ore); m.position.copy(P(x, y, 2.45)); shadowed(m); g.add(m);
+    label(x, y, 6.0, "100-SP-01 Đống quặng mịn −8 mm\n≈ 215 m³ · ≈ 340 t"); };
+  B.hopper2 = (e, g) => { const [x, y] = e.pos;
+    legs(2.2, 2.7, 1.0, x, y, 0, M.steelDark, g, 0.08);
+    frustum(2.5, 3.0, 0.8, 1.0, 1.6, M.hopper, x, y, 1.0, g); box(2.7, 3.2, 0.1, M.hopper, x, y, 2.6, g);
+    for (let i = 0; i <= 16; i++) box(2.7, 0.04, 0.1, M.steelDark, x, y - 1.5 + i * 0.1875, 2.7, g); // 150 mm bars
+    boxc(0.7, 2.4, 0.3, M.belt, x, y - 0.6, 0.65, g); box(0.9, 2.6, 0.08, M.steelDark, x, y - 0.6, 0.42, g); cyl(0.15, 0.4, M.motor, x + 0.65, y - 1.4, 0.75, "y", g);
+    label(x, y, 3.6, "200-HP-02 Phễu cấp máy nghiền 6 m³\nCấp liệu băng VSD 3 kW"); };
+  B.ballmill = (e, g) => { const [x, y, z] = e.pos; // centreline z; axis along Y; feed north (y+1.5) discharge south
+    const L0 = 3.0, R = 0.8;
+    box(6.4, 3.4, 0.25, M.steelDark, x, y, 0.3, g);                 // skid frame on pad
+    for (const dy of [-2.05, 2.05]) { box(1.3, 0.9, 0.9, M.crusher, x, y + dy, 0.55, g); cyl(0.42, 0.55, M.steelDark, x, y + dy, z, "y", g); } // pedestals + bearings
+    for (const dy of [-1.7, 1.7]) cyl(0.32, 0.5, M.mill, x, y + dy, z, "y", g);                    // trunnions
+    const sh = cyl(R, L0, M.mill, x, y, z, "y", g);
+    for (const dy of [-L0 / 2, L0 / 2]) cyl(R + 0.08, 0.14, M.mill, x, y + dy, z, "y", g);          // head flanges
+    for (const dy of [-L0 / 2 - 0.02, L0 / 2 + 0.02]) for (let i = 0; i < 16; i++) { const a = i * Math.PI / 8; cyl(0.03, 0.06, M.steelDark, x + (R + 0.02) * Math.cos(a), y + dy, z + (R + 0.02) * Math.sin(a), "y", g); }
+    for (let r = 0; r < 4; r++) for (let i = 0; i < 12; i++) { const a = r * Math.PI / 2 + 0.4; cyl(0.03, 0.05, M.steelDark, x + R * Math.cos(a), y - L0 / 2 + 0.25 + i * 0.23, z + R * Math.sin(a), "y", g).rotation.z = 0; } // liner bolt rows
+    for (const dy of [-0.9, 0.0, 0.9]) cyl(R + 0.05, 0.1, M.steelDark, x, y + dy, z, "y", g);       // liner bolt rings (bands)
+    cyl(1.05, 0.22, M.steelDark, x, y - L0 / 2 - 0.35, z, "y", g);                                 // girth gear (discharge end)
+    const gg = cyl(1.15, 0.3, M.yellow, x, y - L0 / 2 - 0.35, z, "y", g); gg.material = M.yellow.clone(); gg.material.transparent = true; gg.material.opacity = 0.35; gg.material.side = THREE.DoubleSide; // gear guard (translucent)
+    // pinion, gearbox, motor at east side (+x)
+    cyl(0.25, 0.4, M.steelDark, x + 1.35, y - L0 / 2 - 0.35, z - 0.75, "y", g);
+    box(0.9, 0.8, 0.6, M.crusher, x + 2.2, y - L0 / 2 - 0.35, 0.55, g); cyl(0.36, 1.0, M.motor, x + 3.4, y - L0 / 2 - 0.35, 0.95, "x", g); box(0.3, 0.3, 0.2, M.black, x + 3.4, y - L0 / 2 - 0.35, 1.3, g);
+    box(0.5, 0.5, 0.3, M.yellow, x + 2.85, y - L0 / 2 - 0.35, 0.8, g); // coupling guard
+    // feed chute + trommel
+    const fc = boxc(0.6, 1.2, 0.5, M.hopper, x, y + L0 / 2 + 0.6, z + 0.55, g); fc.rotation.x = 0.55; cyl(0.2, 0.9, M.hopper, x, y + L0 / 2 + 0.55, z, "y", g);
+    const tr = cyl(0.42, 0.7, M.perf, x, y - L0 / 2 - 0.9, z - 0.05, "y", g, 0.36); box(0.6, 0.5, 0.05, M.galv, x, y - L0 / 2 - 0.9, z - 0.45, g);
+    frustum(1.2, 1.0, 0.6, 0.6, 0.6, M.hopper, x, y - L0 / 2 - 1.05, z - 1.15, g);  // discharge spout to sump
+    box(6.0, 0.9, 0.05, M.grating, x - 1.4, y, 0.55, g); handrail([[x - 4.2, y - 2.0], [x - 1.5, y - 2.0]], 0.6, g, 1.0);
+    label(x, y, z + 2.2, "200-ML-01 Máy nghiền bi MQG1530\nØ1,5 × 3,0 m · 75 kW"); };
+  B.sump = (e, g) => { const [x, y, z] = e.pos; box(1.5, 1.5, 1.8, M.steelDark, x, y, z, g); box(1.4, 1.4, 0.02, M.slurry, x, y, z + 1.4, g); box(2.2, 2.2, 0.05, M.concrete, x, y, -0.02, g);
+    tube([[x - 0.75, y - 0.3, 0.3], [x - 1.7, y - 0.5, 0.3]], 0.06, M.pipe, g); label(x, y, 1.8, "200-SU-01 Bể hút 4 m³"); };
+  B.pump = (e, g) => { const [x, y, z] = e.pos; box(1.4, 0.9, 0.2, M.steelDark, x, y, z, g); cyl(0.32, 0.3, M.crusher, x - 0.45, y, z + 0.5, "x", g); cyl(0.12, 0.5, M.pipe, x - 0.8, y, z + 0.5, "x", g);
+    box(0.5, 0.4, 0.25, M.steelDark, x + 0.05, y, z + 0.2, g); cyl(0.22, 0.6, M.motor, x + 0.45, y, z + 0.5, "x", g); box(0.35, 0.12, 0.7, M.yellow, x + 0.1, y + 0.35, z + 0.2, g);
+    tube([[x - 0.45, y, z + 0.82], [x - 0.45, y, 3.6], [-21.0, y + 0.2, 3.6], [-21.0, -45.8, 4.5], [-20.0, -45.8, 4.5]], 0.06, M.pipe, g);
+    label(x, y, 1.9, "200-PP-01 Bơm bùn 3/2 · 15 kW"); };
+  B.concentrator = (e, g) => { const [x, y, z] = e.pos; const sk = e.skid;
+    legs(sk[0] - 0.3, sk[1] - 0.3, z, x, y, 0, M.galv, g, 0.1); box(sk[0], sk[1], 0.06, M.grating, x, y, z, g);
+    handrail([[x - 1.8, y - 1.5], [x + 1.8, y - 1.5], [x + 1.8, y + 1.5], [x - 1.8, y + 1.5]], z + 0.06, g);
+    const st = boxc(0.9, 3.8, 0.08, M.grating, x + 2.4, y, z / 2, g); st.rotation.x = Math.atan2(z, 3.6); handrail([[x + 2.85, y - 1.9], [x + 2.85, y + 1.9]], z + 0.06, g, 0.5);
+    box(1.3, 1.0, 0.25, M.steelDark, x - 0.3, y, z + 0.06, g); cyl(0.48, 0.7, M.crusher, x - 0.3, y, z + 0.66, "z", g); cyl(0.52, 0.28, M.crusher, x - 0.3, y, z + 1.15, "z", g);
+    cyl(0.25, 0.25, M.steelDark, x - 0.3, y, z + 1.4, "z", g, 0.4); cyl(0.05, 0.6, M.pipe, x - 0.3, y, z + 1.8, "z", g);
+    cyl(0.2, 0.5, M.motor, x + 0.55, y - 0.3, z + 0.55, "x", g); box(0.3, 0.12, 0.6, M.yellow, x + 0.1, y - 0.55, z + 0.3, g);
+    box(0.35, 0.3, 0.5, M.grey, x + 1.2, y + 1.0, z + 0.06, g); // control box
+    tube([[x - 0.9, y, z + 0.5], [x - 0.9, y - 2.0, z + 0.4], [-19, -70.5, 0.6], [-19, -75, -0.5]], 0.085, M.hdpe, g); // tails to pond A
+    tube([[x - 0.3, y + 0.5, z + 0.3], [x + 0.6, y + 2.6, z + 0.1], [x + 0.6, y + 2.6, 1.5]], 0.05, M.pipe, g); // concentrate flush to tank
+    label(x, y, z + 3.0, "300-CN-01 Máy tuyển ly tâm STLB60\n8–12 t/h · 4 kW · sàn +2,80"); };
+  B.tank1 = (e, g) => { const [x, y, z] = e.pos; cyl(0.5, 1.3, M.crusher, x, y, z + 0.65, "z", g); cyl(0.12, 0.35, M.motor, x, y, z + 1.5, "z", g); box(0.5, 0.3, 0.3, M.steelDark, x + 0.8, y, z, g); cyl(0.12, 0.35, M.motor, x + 0.8, y, z + 0.45, "x", g);
+    tube([[x + 0.9, y, z + 0.6], [x + 1.5, y, 1.8], [-14.0, -47.8, 1.8], [-14.0, -47.8, 1.3]], 0.03, M.pipe, g); label(x, y, 2.4, "300-TK-01 Thùng tinh quặng 1 m³"); };
+  B.table = (e, g) => { const [x, y, z] = e.pos; // deck 4.5 x 1.85 tilted 3 deg (low side south)
+    for (const dx of [-2.0, 2.0]) for (const dy of [-0.8, 0.8]) box(0.1, 0.1, 0.55 + (dy < 0 ? 0 : 0.1), M.steelDark, x + dx, y + dy, z, g);
+    const dg = new THREE.Group(); g.add(dg); dg.position.copy(P(x, y, z + 0.65)); dg.rotation.z = 0; dg.rotation.x = -3 * Math.PI / 180;
+    const sb = (sx, sy, sz, mat, cx, cy, cz) => { const m = new THREE.Mesh(new THREE.BoxGeometry(sx, sz, sy), mat); m.position.set(cx, cz, -cy); shadowed(m); dg.add(m); return m; };
+    sb(4.5, 1.85, 0.06, M.hopper, 0, 0, 0);
+    for (let i = 0; i < 22; i++) { const len = 4.2 - i * 0.14; sb(len, 0.025, 0.03, M.steelDark, -2.1 + len / 2, -0.85 + i * 0.075, 0.045); } // riffles
+    sb(0.12, 1.85, 0.12, M.steelDark, -2.2, 0, 0.06); sb(4.5, 0.12, 0.1, M.steelDark, 0, 0.9, 0.06);            // feed launder side & wash-water launder
+    box(0.6, 0.7, 0.6, M.crusher, x + 2.75, y, z + 0.35, g); cyl(0.14, 0.35, M.motor, x + 2.75, y + 0.6, z + 0.75, "y", g); // head motion + motor
+    for (let i = 0; i < 3; i++) box(1.4, 0.18, 0.18, M.galv, x - 1.5 + i * 1.5, y - 1.05, z + 0.4, g); // product launders (conc / midd / tails)
+    tube([[x - 0.8, y - 1.1, z + 0.4], [x - 3.5, y - 1.1, 0.3], [-26.9, -46.2, 0.3]], 0.04, M.pipe, g); // tails back to sump
+    label(x, y, 2.9, "300-ST-01 Bàn đãi 6-S\n4,5 × 1,85 m · 1,1 kW"); };
+  B.container = (e, g) => { const [x, y, z] = e.pos; const [Lx, Wy, Hz] = e.dims; const mat = e.tag.includes("GR") ? M.white : (e.tag.includes("WS") ? M.green : M.white);
+    for (const dx of [-1, 1]) for (const dy of [-1, 1]) box(0.3, 0.3, 0.25, M.concrete, x + dx * (Lx / 2 - 0.3), y + dy * (Wy / 2 - 0.3), -0.02, g);
+    const b = box(Lx, Wy, Hz, mat, x, y, 0.2, g); b.material = mat.clone(); b.material.map = T.corr.clone(); b.material.map.repeat.set(Lx / 1.2, 1); b.material.map.needsUpdate = true;
+    box(0.05, Wy - 0.2, Hz - 0.3, e.tag.includes("GR") ? M.red : M.steelDark, x - Lx / 2 - 0.02, y, 0.3, g); // door end
+    if (!e.tag.includes("EH")) { box(0.02, 1.0, 0.8, M.glass, x, y - Wy / 2 - 0.01, 1.3, g); box(0.5, 0.5, 0.4, M.grey, x + Lx / 4, y - Wy / 2 - 0.3, 1.2, g); } // window + A/C
+    label(x, y, Hz + 1.2, e.tag + " " + e.vn.split(" –")[0]); };
+  B.container10 = B.container;
+  B.genset = (e, g) => { const [x, y, z] = e.pos; const [Lx, Wy, Hz] = e.dims; const kva = e.model.split(" ")[0];
+    for (const dx of [-1, 1]) for (const dy of [-1, 1]) box(0.3, 0.3, 0.25, M.concrete, x + dx * (Lx / 2 - 0.3), y + dy * (Wy / 2 - 0.3), -0.02, g);
+    const b = box(Lx, Wy, Hz, M.genset, x, y, 0.2, g); b.material = M.genset.clone(); b.material.map = T.corr.clone(); b.material.map.repeat.set(Lx / 1.2, 1); b.material.map.needsUpdate = true;
+    const lv = box(0.06, Wy - 0.3, Hz - 0.5, M.black, x + Lx / 2 + 0.01, y, 0.45, g); // radiator louvre end
+    for (let i = 0; i < 9; i++) box(0.04, Wy - 0.4, 0.06, M.grey, x + Lx / 2 + 0.05, y, 0.55 + i * 0.22, g);
+    cyl(0.12, 1.2, M.steelDark, x + Lx / 2 - 0.9, y + 0.5, Hz + 0.2 + 0.6, "z", g); box(0.5, 0.35, 0.12, M.steelDark, x + Lx / 2 - 0.9, y + 0.5, Hz + 1.4, g);
+    const lab = new THREE.Mesh(new THREE.PlaneGeometry(2.2, 0.7), new THREE.MeshStandardMaterial({ map: textTex(`HLC  ${e.tag.split("-")[2]}  ${kva} kVA`, 512, 160, "#1f4e79", "#ffffff", 64) }));
+    lab.position.copy(P(x - 0.5, y - Wy / 2 - 0.02, 1.6)); lab.rotation.y = Math.PI; g.add(lab);
+    box(0.5, 0.05, 0.7, M.grey, x - Lx / 4, y - Wy / 2 - 0.01, 0.9, g);
+    label(x, y, Hz + 2.2, e.tag + " " + e.vn.split(" –")[0] + "\n" + kva + " kVA"); };
+  B.fueltank = (e, g) => { const [x, y, z] = e.pos; box(3.3, 1.8, 0.25, M.concrete, x, y, -0.02, g); cyl(0.7, 3.0, M.white, x, y, 0.95, "x", g); for (const dx of [-1.1, 1.1]) box(0.3, 1.6, 0.6, M.steelDark, x + dx, y, 0.2, g);
+    cyl(0.08, 0.5, M.steelDark, x - 0.8, y, 1.8, "z", g); box(0.35, 0.3, 0.6, M.red, x + 1.9, y, 0.2, g); label(x, y, 2.6, "500-FT-01 Bồn dầu 5 m³"); };
+  B.watertanks = (e, g) => { const [x, y, z] = e.pos; const sk = e.skid;
+    legs(sk[0] - 0.3, sk[1] - 0.3, z, x, y, 0, M.galv, g, 0.1); box(sk[0], sk[1], 0.12, M.galv, x, y, z, g);
+    for (const dx of [-1.3, 1.3]) { const t = cyl(1.15, 2.6, M.hdpe, x + dx, y, z + 1.42, "z", g); cyl(1.18, 0.15, M.hdpe, x + dx, y, z + 2.75, "z", g, 0.9); cyl(0.3, 0.12, M.hdpe, x + dx, y, z + 2.86, "z", g); }
+    tube([[x - 1.3, y + 1.1, z - 0.2], [x - 1.3, y + 1.1, 0.4], [x + 2.8, y + 1.1, 0.4]], 0.05, M.hdpeBlue, g); tube([[x + 1.3, y + 1.1, z - 0.2], [x + 1.3, y + 1.1, 0.4]], 0.05, M.hdpeBlue, g);
+    box(0.5, 0.35, 0.3, M.steelDark, x + 3.2, y + 1.1, 0.0, g); cyl(0.13, 0.4, M.motor, x + 3.2, y + 1.1, 0.5, "x", g);
+    tube([[x + 3.6, y + 1.1, 0.4], [-21.5, y + 1.1, 0.4], [-21.5, -45.2, 3.6], [-20.4, -45.5, 3.6]], 0.04, M.hdpeBlue, g); // booster to concentrator
+    const lad = boxc(0.4, 0.05, z + 2.8, M.galv, x - 2.7, y, (z + 2.8) / 2, g); label(x, y, z + 3.8, "600-TK-02 Bồn nước 2 × 10 m³\ngiá thép +3,00"); };
+  B.feeder = () => {}; // drawn inside hopper
+
+  // ------------------------------------------------------------ conveyors
+  function conveyor(c) {
+    const g = group(Object.assign({ kind: "conveyor" }, c)); const w = c.belt === "B400" ? 0.4 : 0.5;
+    const t = c.tail, h = c.head; const dx = h[0] - t[0], dy = h[1] - t[1], dz = h[2] - t[2]; const horiz = Math.hypot(dx, dy); const Lc = Math.sqrt(horiz * horiz + dz * dz);
+    const yaw = Math.atan2(dy, dx), pitch = Math.atan2(dz, horiz);
+    const cg = new THREE.Group(); g.add(cg); cg.position.copy(P(t[0], t[1], t[2]));
+    cg.rotation.set(0, yaw, 0); const pg = new THREE.Group(); cg.add(pg); pg.rotation.z = pitch; // local: u along belt (x), v across (z), w up (y)
+    const lb = (su, sv, sw, mat, cu, cv, cw) => { const m = new THREE.Mesh(new THREE.BoxGeometry(su, sw, sv), mat); m.position.set(cu, cw, cv); shadowed(m); pg.add(m); return m; };
+    const lc = (r, len, mat, cu, cv, cw, axis, rt) => { const m = new THREE.Mesh(new THREE.CylinderGeometry(rt === undefined ? r : rt, r, len, 18), mat); if (axis === "u") m.rotation.z = Math.PI / 2; else if (axis === "v") m.rotation.x = Math.PI / 2; m.position.set(cu, cw, cv); shadowed(m); pg.add(m); return m; };
+    const sw = w + 0.36;
+    for (const s of [-1, 1]) { lb(Lc, 0.12, 0.16, M.galv, Lc / 2, s * sw / 2, 0); lb(Lc, 0.08, 0.1, M.galv, Lc / 2, s * sw / 2, -0.45); } // top & bottom chords
+    for (let u = 0.6; u < Lc - 0.4; u += 1.2) for (const s of [-1, 1]) { const d = lb(0.06, 0.06, 0.62, M.galv, u, s * sw / 2, -0.22); d.rotation.z = 0.7; } // truss diagonals
+    for (let u = 0.5; u < Lc; u += 1.0) { lc(0.055, w * 0.4, M.roller, u, 0, 0.12, "v"); for (const s of [-1, 1]) { const r = lc(0.055, w * 0.36, M.roller, u, s * w * 0.36, 0.17, "v"); r.rotation.y = 0; r.rotation.z = 0; r.rotation.x = Math.PI / 2 + s * 0.6; } // troughing idlers
+      if (u % 3 < 1) lc(0.055, w + 0.1, M.roller, u, 0, -0.4, "v"); }
+    const belt = lb(Lc - 0.2, w, 0.02, M.belt, Lc / 2, 0, 0.2); belt.material = M.belt.clone(); belt.material.map = T.belt.clone(); belt.material.map.repeat.set(Lc / 2, 1); belt.material.map.needsUpdate = true;
+    lb(Lc - 0.2, w, 0.02, M.belt, Lc / 2, 0, -0.34);
+    for (const s of [-1, 1]) { lb(Lc, 0.15, 0.02, M.rust, Lc / 2, s * (w / 2 + 0.05), 0.24); } // skirt rubber hint
+    lc(0.2, w + 0.2, M.steelDark, Lc, 0, 0, "v"); lc(0.15, w + 0.2, M.steelDark, 0, 0, -0.05, "v");   // head/tail pulleys
+    lb(0.4, 0.5, 0.35, M.crusher, Lc - 0.05, sw / 2 + 0.45, 0.0); lc(0.18, 0.5, M.motor, Lc - 0.05, sw / 2 + 0.95, 0.0, "v"); lb(0.6, 0.12, 0.7, M.yellow, Lc - 0.05, sw / 2 + 0.2, -0.1); // drive
+    lb(0.9, w + 0.3, 0.05, M.grating, Lc - 0.6, -(sw / 2 + 0.5), 0.1); // head service platform
+    // head chute (world coords) & tail feed box
+    const hd = new THREE.Mesh(new THREE.BoxGeometry(0.9, 0.9, w + 0.3), M.hopper); hd.position.set(Lc + 0.25, -0.4, 0); shadowed(hd); pg.add(hd);
+    const tb = new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.5, w + 0.5), M.hopper); tb.position.set(0.7, 0.55, 0); shadowed(tb); pg.add(tb);
+    // legs (world)
+    const n = Math.max(1, Math.round(horiz / 5)); for (let k = 1; k <= n; k++) { const f = Math.min(0.95, k / n); const x = t[0] + dx * f, y = t[1] + dy * f, zt = t[2] + dz * f - 0.55; const hh = zt - height(x, y); if (hh < 0.4) continue;
+      const nx = -Math.sin(yaw), ny = Math.cos(yaw); for (const s of [-1, 1]) cyl(0.05, hh, M.galv, x + s * nx * sw / 2, y + s * ny * sw / 2, height(x, y) + hh / 2, "z", g);
+      const cb = boxc(0.08, sw, 0.08, M.galv, x, y, height(x, y) + hh * 0.5, g); cb.rotation.y = yaw; }
+    // pull-wire (thin) along one side
+    label((t[0] + h[0]) / 2, (t[1] + h[1]) / 2, (t[2] + h[2]) / 2 + 1.4, `${c.tag.replace("100-", "").replace("200-", "")} ${c.belt} · L=${c.L.toFixed(1)} m · ${c.ang.toFixed(0)}° · ${c.kw} kW`);
+    return g;
+  }
+
+  // ------------------------------------------------------------ assemble
+  for (const e of L.E) { if (!B[e.kind]) continue; const g = group(e); B[e.kind](e, g); }
+  for (const c of L.CV) conveyor(c);
+  // magnet on CV-01 (over-belt) at mid-length
+  { const c = L.CV[0]; const f = 0.5; const x = c.tail[0] + (c.head[0] - c.tail[0]) * f, y = 0, z = c.tail[2] + (c.head[2] - c.tail[2]) * f + 0.9; const g = group({ tag: "100-MG-01", vn: "Nam châm treo băng", en: "Over-belt magnet", model: "RCDB-6", kw: 3, mass: 0.8, pos: [x, y, z], dims: [0.8, 1.2, 0.5], spec_vn: "Loại sắt vụn bảo vệ máy đập thứ cấp và côn.", spec_en: "Tramp-iron protection for the secondary and cone crushers.", p: {} });
+    box(0.8, 1.2, 0.5, M.crusher, x, y, z, g); for (const dy of [-0.9, 0.9]) box(0.1, 0.1, 2.4, M.galv, x, y + dy, height(x, y), g); box(0.15, 2.0, 0.15, M.galv, x, y, z + 0.6, g); label(x, y, z + 1.3, "100-MG-01 Nam châm treo băng · 3 kW"); }
+  // raw-water & return-water lines (buried – shown as surface trace) + stream intake pump
+  tube([[-92, -20, height(-92, -20) + 0.2], [-60, -20, height(-60, -20) + 0.1], [-40, -36, 0.1], [-35.3, -35.9, 0.1]], 0.04, M.hdpeBlue);
+  { const g = group({ tag: "600-PP-02", vn: "Bơm nước thô (suối)", en: "Raw-water pump (stream)", model: "50 m³/h @ 30 m", kw: 11, mass: 0.3, pos: [-88, -20, 0], dims: [1, 0.6, 0.8], spec_vn: "Trạm bơm trên bờ suối, ống HDPE Ø75 dài ≈ 160 m.", spec_en: "Pump station on the stream bank, Ø75 HDPE ≈ 160 m.", p: {} }); const z = height(-88, -20); box(1.5, 1.2, 0.2, M.concrete, -88, -20, z, g); cyl(0.18, 0.6, M.motor, -88, -20, z + 0.5, "x", g); box(1.8, 1.5, 0.05, M.roof, -88, -20, z + 1.6, g); for (const dx of [-0.8, 0.8]) for (const dy of [-0.65, 0.65]) cyl(0.03, 1.4, M.galv, -88 + dx, -20 + dy, z + 0.9, "z", g); label(-88, -20, z + 2.4, "600-PP-02 Bơm nước thô 11 kW"); }
+  { const [sx, sy] = L.SUMP; const z = height(sx, sy); const g = group({ tag: "600-PP-03", vn: "Bơm nước hồi (hồ B)", en: "Return-water pump (pond B)", model: "40 m³/h @ 25 m", kw: 7.5, mass: 0.3, pos: [sx, sy, z], dims: [1, 0.6, 0.8], spec_vn: "Trên đỉnh đê hồ B; ống HDPE Ø75 về bồn nước ≈ 100 m.", spec_en: "On pond B crest; Ø75 HDPE back to tanks ≈ 100 m.", p: {} });
+    box(1.5, 1.2, 0.2, M.concrete, sx, sy, z, g); cyl(0.18, 0.6, M.motor, sx, sy, z + 0.5, "x", g); tube([[sx - 0.6, sy, z + 0.4], [sx - 6, sy, z - 1.5]], 0.05, M.hdpeBlue, g); label(sx, sy, z + 1.6, "600-PP-03 Bơm nước hồi 7,5 kW");
+    tube([[sx, sy + 0.6, z + 0.3], [sx + 2, -110, height(sx + 2, -110) + 0.1], [sx + 2, -62, 0.1], [-36.5, -62, 0.1], [-36.5, -36.5, 0.1], [-35.3, -35.5, 0.1]], 0.04, M.hdpeBlue); }
+  // tails pipe pond A inlet marker & decant pipe A->B
+  tube([[-19, -75, -0.6], [-19, -80, height(-19, -80) + 0.2]], 0.085, M.hdpe); tube([[0, -108, natural(0, -108) + 0.2], [0, -116, natural(0, -116) + 0.2]], 0.1, M.hdpe);
+
+  return { pick, labels, height };
+}
+
+(function(){
+const isMobile = /Android|iPhone|iPad|Mobile/i.test(navigator.userAgent) || window.innerWidth < 700;
+const canvas = document.getElementById("c");
+const renderer = new THREE.WebGLRenderer({canvas, antialias:true, preserveDrawingBuffer:true});
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, isMobile ? 1.5 : 2));
+renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.outputEncoding = THREE.sRGBEncoding; renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.05;
+const scene = new THREE.Scene(); scene.fog = new THREE.Fog(0xcfdbe6, 380, 1000);
+// sky dome
+const skyC = document.createElement("canvas"); skyC.width = 4; skyC.height = 256; const sg = skyC.getContext("2d"); const grd = sg.createLinearGradient(0,0,0,256);
+grd.addColorStop(0,"#3f7ccf"); grd.addColorStop(0.45,"#8fbbe6"); grd.addColorStop(0.62,"#d9e6ef"); grd.addColorStop(1,"#c9b89a"); sg.fillStyle = grd; sg.fillRect(0,0,4,256);
+const skyT = new THREE.CanvasTexture(skyC); skyT.encoding = THREE.sRGBEncoding;
+const sky = new THREE.Mesh(new THREE.SphereGeometry(1600, 32, 16), new THREE.MeshBasicMaterial({map:skyT, side:THREE.BackSide, fog:false})); scene.add(sky);
+const pm = new THREE.PMREMGenerator(renderer); const envScene = new THREE.Scene(); envScene.add(sky.clone()); const gp = new THREE.Mesh(new THREE.PlaneGeometry(2000,2000), new THREE.MeshBasicMaterial({color:0x8a7a5a})); gp.rotation.x = -Math.PI/2; gp.position.y = -1; envScene.add(gp);
+scene.environment = pm.fromScene(envScene, 0.02).texture;
+scene.add(new THREE.HemisphereLight(0xcfe3ff, 0x8a7a5a, 0.55)); scene.add(new THREE.AmbientLight(0xffffff, 0.12));
+const sun = new THREE.DirectionalLight(0xfff1dc, 1.7); sun.position.set(70, 110, -60); sun.castShadow = true;
+sun.shadow.mapSize.set(isMobile ? 2048 : 4096, isMobile ? 2048 : 4096); const sc = sun.shadow.camera; sc.left = -150; sc.right = 150; sc.top = 150; sc.bottom = -150; sc.near = 10; sc.far = 400;
+sun.shadow.bias = -0.0006; sun.shadow.normalBias = 0.03; scene.add(sun); scene.add(sun.target);
+const built = buildPlant(THREE, scene, LAYOUT, {});
+scene.traverse(o => { if (o.material) { const ms = Array.isArray(o.material) ? o.material : [o.material]; ms.forEach(m => { if (m.map) m.map.encoding = THREE.sRGBEncoding; }); } });
+// labels
+const labelGroup = new THREE.Group(); scene.add(labelGroup);
+for (const l of built.labels) { const lines = l.text.split("\n"); const c = document.createElement("canvas"); c.width = 512; c.height = 64 * lines.length + 16; const g = c.getContext("2d");
+  g.fillStyle = "rgba(255,255,255,0.88)"; g.strokeStyle = "#1F4E79"; g.lineWidth = 4; g.beginPath(); g.roundRect ? g.roundRect(4,4,c.width-8,c.height-8,18) : g.rect(4,4,c.width-8,c.height-8); g.fill(); g.stroke();
+  g.fillStyle = "#1F4E79"; g.textAlign = "center"; g.textBaseline = "middle"; lines.forEach((t,i) => { g.font = (i === 0 ? "bold 34px" : "30px") + " Arial"; g.fillText(t, c.width/2, 40 + i*60); });
+  const t = new THREE.CanvasTexture(c); t.encoding = THREE.sRGBEncoding; const s = new THREE.Sprite(new THREE.SpriteMaterial({map:t, depthTest:false, transparent:true})); s.scale.set(9, 9*c.height/c.width, 1); s.position.copy(l.pos); labelGroup.add(s); }
+labelGroup.visible = !isMobile; document.getElementById("lab").classList.toggle("on", !isMobile);
+// camera & controls
+const camera = new THREE.PerspectiveCamera(50, 2, 0.5, 4000);
+const controls = new THREE.OrbitControls(camera, canvas); controls.enableDamping = true; controls.dampingFactor = 0.08; controls.maxPolarAngle = Math.PI/2 - 0.02; controls.minDistance = 4; controls.maxDistance = 600;
+const P = (x,y,z) => new THREE.Vector3(x, z, -y);
+const VIEWS = { overview:[P(95,-125,78), P(0,-45,0)], crush:[P(36,-27,13), P(21,-5,2.5)], mill:[P(-8,-22,15), P(-28,-43,1)], gold:[P(-2,-64,10), P(-15,-47,1)], pond:[P(80,-190,70), P(0,-112,-3)], plan:[P(8,-42,230), P(8,-42.5,0)] };
+function setView(k){ const v = VIEWS[k]; camera.position.copy(v[0]); controls.target.copy(v[1]); controls.update(); document.querySelectorAll("#top button[data-v]").forEach(b => b.classList.toggle("on", b.dataset.v === k)); }
+document.querySelectorAll("#top button[data-v]").forEach(b => b.onclick = () => { controls.autoRotate = false; document.getElementById("fly").classList.remove("on"); setView(b.dataset.v); });
+document.getElementById("lab").onclick = e => { labelGroup.visible = !labelGroup.visible; e.target.classList.toggle("on", labelGroup.visible); };
+document.getElementById("fly").onclick = e => { controls.autoRotate = !controls.autoRotate; controls.autoRotateSpeed = 0.6; e.target.classList.toggle("on", controls.autoRotate); };
+window.setView = setView;
+// picking
+const ray = new THREE.Raycaster(); let down = null;
+canvas.addEventListener("pointerdown", e => down = [e.clientX, e.clientY]);
+canvas.addEventListener("pointerup", e => { if (!down || Math.hypot(e.clientX-down[0], e.clientY-down[1]) > 6) return; const r = canvas.getBoundingClientRect();
+  ray.setFromCamera(new THREE.Vector2((e.clientX-r.left)/r.width*2-1, -((e.clientY-r.top)/r.height*2-1)), camera);
+  const hits = ray.intersectObjects(built.pick, true); if (!hits.length) return; let o = hits[0].object; while (o && !built.pick.includes(o)) o = o.parent; if (!o) return; const d = o.userData;
+  const f = v => v === undefined || v === null ? "" : v; let h = `<b>${f(d.tag)}</b> — ${f(d.vn)}<br>`;
+  if (d.kind === "conveyor") h += `Băng ${d.belt} · dài ${d.L.toFixed(1)} m · nâng ${d.lift.toFixed(2)} m · góc ${d.ang.toFixed(1)}° · động cơ ${d.kw} kW<br>Đuôi (${d.tail[0]}, ${d.tail[1]}, +${d.tail[2]}) → đầu (${d.head[0]}, ${d.head[1]}, +${d.head[2]}) m`;
+  else { h += `Model: ${f(d.model)}<br>`; if (d.kw) h += `Động cơ: ${d.kw} kW · `; if (d.mass) h += `Khối lượng ≈ ${d.mass} t`; h += `<br>Kích thước bao ≈ ${d.dims[0]} × ${d.dims[1]} × ${d.dims[2]} m (D×R×C)`;
+    h += `<br>Vị trí (X, Y, Z) = (${d.pos[0]}, ${d.pos[1]}, ${d.pos[2] >= 0 ? "+" : ""}${d.pos[2]}) m`; if (d.spec_vn) h += `<br><i>${d.spec_vn}</i>`; }
+  document.getElementById("it").innerHTML = h; document.getElementById("info").style.display = "block"; });
+function resize(){ const w = canvas.clientWidth || window.innerWidth, h = canvas.clientHeight || window.innerHeight; renderer.setSize(w, h, false); camera.aspect = w/h; camera.updateProjectionMatrix(); }
+window.addEventListener("resize", resize); resize(); setView("overview");
+function loop(){ controls.update(); renderer.render(scene, camera); requestAnimationFrame(loop); } loop();
+document.getElementById("load").style.display = "none";
+window.__scene = scene; window.__renderer = renderer; window.__camera = camera; window.__controls = controls; window.__labels = labelGroup;
+})();
+</script></body></html>
