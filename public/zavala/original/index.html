@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>QLT Zavala | Mô hình 3D xoay và zoom</title><style>*{box-sizing:border-box}body{margin:0;padding:18px;background:#eef1e9;color:#233f32;font:15px/1.55 system-ui,-apple-system,Segoe UI,Arial,sans-serif}.model-viewer{max-width:1160px;margin:auto;padding:22px;border:1px solid #ccd7c5;border-radius:16px;background:#fffef8}h3{margin:4px 0 8px;font-size:clamp(24px,4vw,34px);line-height:1.2}.section-number{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:#71816a}.model-intro>p{margin:10px 0 18px;max-width:800px}.model-toolbar{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;margin-bottom:12px}.model-toolbar label{display:flex;gap:8px;align-items:center;font-weight:600}button,select{font:inherit;min-height:42px;padding:8px 12px;border:1px solid #becdb6;background:#f3f6ee;color:#233f32;border-radius:8px}button{cursor:pointer}button:hover{background:#e3ecd9}button:focus-visible,select:focus-visible,canvas:focus-visible{outline:3px solid #b58243;outline-offset:3px}.model-buttons{display:flex;gap:7px;flex-wrap:wrap}#camp-model-canvas{width:100%;height:62vh;min-height:330px;max-height:720px;display:block;border-radius:10px;border:1px solid #d6dfcf;touch-action:none;cursor:grab}#camp-model-canvas.dragging{cursor:grabbing}.model-caption{display:flex;gap:15px;flex-wrap:wrap;justify-content:space-between;align-items:baseline;font-size:14px}.model-caption p{margin:12px 0}#model-status{color:#6f7d63;font-size:12px}details{margin-top:16px;border-top:1px solid #dbe2d5;padding-top:12px;font-size:13px;color:#68765d}summary{cursor:pointer;font-weight:600}.model-height-note{max-width:1000px}[hidden]{display:none!important}@media(max-width:600px){body{padding:8px}.model-viewer{padding:14px}.model-toolbar{display:block}.model-buttons{margin-top:12px}#camp-model-canvas{height:55vh;min-height:320px}.model-caption{display:block}.model-caption p{margin-bottom:4px}}</style></head><body><section class="model-viewer" aria-labelledby="model-title">
+        <div class="model-intro"><div><span class="section-number">Xem mô hình trực tiếp</span><h3 id="model-title">Mô hình khối tích 3D</h3></div><p>Mô hình khối tích 3D theo mặt bằng; cao độ kiến trúc giả định. Có thể xoay để xem tương quan công trình, đường đi và sân vườn.</p></div>
+        <div class="model-toolbar"><label for="model-zone">Phân khu <select id="model-zone"><option value="all">Toàn khu</option><option value="K1">K1 · Khu ở</option><option value="K2">K2 · Ăn và chơi</option><option value="K3">K3 · VIP</option><option value="K4">K4 · Kho bãi</option><option value="K5">K5 · Bảo vệ</option></select></label><div class="model-buttons"><button type="button" id="model-zoom-out" aria-label="Thu nhỏ mô hình">−</button><button type="button" id="model-zoom-in" aria-label="Phóng to mô hình">+</button><button type="button" id="model-top">Nhìn từ trên</button><button type="button" id="model-reset">Đặt lại góc nhìn</button></div></div>
+        <canvas id="camp-model-canvas" width="1000" height="520" tabindex="0" role="img" aria-label="Mô hình khối tích 3D tương tác của 5 khu Camping. Kéo để xoay; dùng phím mũi tên đổi góc nhìn, cộng trừ để phóng, Home để đặt lại." aria-describedby="model-instructions">Trình duyệt không hỗ trợ Canvas. Hãy mở tệp bằng trình duyệt có hỗ trợ Canvas và JavaScript.</canvas>
+        <div class="model-caption"><p id="model-instructions">Kéo chuột hoặc một ngón tay để xoay. Cuộn chuột hoặc dùng nút +/− để phóng. Bàn phím: mũi tên đổi góc, Home đặt lại.</p><span id="model-status" aria-live="polite"></span></div>
+        <details><summary>Phạm vi và cao độ đề xuất</summary><p class="model-height-note">Cao tường / đỉnh mái theo kiến trúc đề xuất: khu ở 3,2 / 4,68 m; VIP 3,3 / 5,6 m; kho 5 / 6,3 m; văn phòng 3,2 / 4,3 m; nhà giặt 3,1 / 4 m; bảo vệ 3 / 3,8 m. Giả định riêng của mô hình: nhà chơi 4 / 6 m; căng tin 3,2 / 4,8 m. Mái hiên phụ khu ở có cốt thấp 2,68 m, được giản lược trong mô hình. Đây là mô hình khối kiến trúc, không phải BIM hoặc mô hình kết cấu thi công.</p></details>
+        <p id="model-fallback" hidden>Trình xem cần trình duyệt hỗ trợ Canvas và JavaScript.</p>
+        
+      </section><script id="project-data" type="application/json">{"project": "QLT Zavala | Quy hoạch khu Camping", "revision": "C", "date": "2026-10-18", "status": "Thiết kế kiến trúc và phối hợp kỹ thuật; chưa phát hành thi công", "units": "m", "site": {"width": 70, "length": 130, "area": 9100, "origin": "Góc dưới trái bản vẽ; y tăng từ phía tiếp cận về phía vườn và hướng nhìn. Không phải tọa độ khảo sát hay hướng Bắc.", "split_y": 65.71428571428571, "lower_split_x": 34.23913043478261, "upper_split_x": 35}, "zones": [{"id": "K1", "name": "Khu ở tập trung", "area": 2250, "color": "#b97844", "polygon": [[35, 65.71428571428571], [70, 65.71428571428571], [70, 130], [35, 130]], "summary": "8 phòng × 3 giường; 8 WC/tắm liền kề, cửa vào từ sảnh ngoài; giặt, phơi và sân vườn.", "budget": [["Hai dãy ở, WC, sảnh và hiên", 357.12], ["Nhà giặt", 36], ["Sân phơi", 84], ["Đường xe nhẹ và đón trả", 190], ["Đường đi bộ, sân sinh hoạt", 220], ["Dự phòng kỹ thuật", 30], ["Vườn, thảm cỏ và đất thấm", 1332.88]]}, {"id": "K2", "name": "Bếp, căng tin và thể thao", "area": 2250, "color": "#497c80", "polygon": [[0, 0], [34.23913043478261, 0], [34.23913043478261, 65.71428571428571], [0, 65.71428571428571]], "summary": "Căng tin 36 chỗ; 2 bóng bàn; 1 bi-a lỗ; 1 bi-a phăng; 1 pickleball và 1 cầu mây.", "budget": [["Bếp và căng tin", 192], ["Nhà chơi trong nhà", 221], ["WC dùng chung đề xuất", 20], ["Pickleball và khoảng chạy", 264], ["Cầu mây và khoảng trống", 286], ["Dự phòng hạ tầng kín", 100], ["Lối đi, sân nghỉ và ăn ngoài trời", 250], ["Cây xanh, khoảng đệm và đất thấm", 917]]}, {"id": "K3", "name": "Nhà khách VIP", "area": 2250, "color": "#668159", "polygon": [[0, 65.71428571428571], [35, 65.71428571428571], [35, 130], [0, 130]], "summary": "Một nhà 4 phòng ngủ, hiên nhìn ra vườn; bãi cỏ liền mạch và lối đón khách riêng.", "budget": [["Nhà 20 × 12 m và hiên 20 × 3 m", 300], ["Đón trả và đỗ xe nhẹ", 160], ["Lối đi, sân ngồi", 190], ["Vườn và bãi cỏ", 1600]]}, {"id": "K4", "name": "Văn phòng, kho và bãi", "area": 2250, "color": "#837461", "polygon": [[34.23913043478261, 0], [60, 0], [60, 10], [70, 10], [70, 65.71428571428571], [34.23913043478261, 65.71428571428571]], "summary": "Kho 200 m², văn phòng 50 m², bãi và đường xe 2.000 m²; xe hàng vào trực tiếp từ cổng.", "budget": [["Kho có mái 20 × 10 m", 200], ["Văn phòng 10 × 5 m", 50], ["Bãi, đường xe, xếp dỡ, đỗ và bảo trì", 2000]]}, {"id": "K5", "name": "Bảo vệ và kiểm soát", "area": 100, "color": "#9e6857", "polygon": [[60, 0], [70, 0], [70, 10], [60, 10]], "summary": "Đất 10 × 10 m; nhà trực 5 × 4 m; sân chờ, lối khách và khoảng quan sát.", "budget": [["Nhà bảo vệ", 20], ["Sân, lối đi và kiểm soát", 80]]}], "buildings": [{"id": "K1-A", "zone": "K1", "name": "Dãy A - P01 đến P04", "x": 44, "y": 86, "w": 18.6, "d": 9.6, "rotation": 0, "area": 178.56, "type": "dorm", "faces": "+y"}, {"id": "K1-B", "zone": "K1", "name": "Dãy B - P05 đến P08", "x": 44, "y": 110, "w": 18.6, "d": 9.6, "rotation": 180, "area": 178.56, "type": "dorm", "faces": "-y"}, {"id": "K1-L", "zone": "K1", "name": "Nhà giặt", "x": 36, "y": 94, "w": 6, "d": 6, "area": 36, "type": "laundry"}, {"id": "K2-H", "zone": "K2", "name": "Nhà bóng bàn và bi-a", "x": 2, "y": 32, "w": 17, "d": 13, "area": 221, "type": "games"}, {"id": "K2-C", "zone": "K2", "name": "Bếp và căng tin", "x": 16, "y": 49, "w": 16, "d": 12, "area": 192, "type": "canteen"}, {"id": "K2-W", "zone": "K2", "name": "WC sinh hoạt chung", "x": 3, "y": 49, "w": 4, "d": 5, "area": 20, "type": "wc"}, {"id": "K3-V", "zone": "K3", "name": "Nhà VIP 4 phòng ngủ và hiên", "x": 5, "y": 98, "w": 20, "d": 15, "area": 300, "type": "vip"}, {"id": "K4-K", "zone": "K4", "name": "Kho", "x": 46, "y": 37, "w": 20, "d": 10, "area": 200, "type": "warehouse"}, {"id": "K4-O", "zone": "K4", "name": "Văn phòng", "x": 47, "y": 3, "w": 10, "d": 5, "area": 50, "type": "office"}, {"id": "K5-G", "zone": "K5", "name": "Nhà bảo vệ", "x": 63, "y": 4, "w": 5, "d": 4, "area": 20, "type": "guard"}], "outdoor": [{"id": "K1-D", "zone": "K1", "name": "Sân phơi", "x": 36, "y": 102, "w": 6, "d": 14, "area": 84, "type": "drying"}, {"id": "K1-U", "zone": "K1", "name": "Dự phòng cấp nước/kỹ thuật", "x": 63, "y": 69, "w": 5, "d": 6, "area": 30, "type": "utility"}, {"id": "K2-P", "zone": "K2", "name": "Pickleball", "x": 3, "y": 3, "w": 12, "d": 22, "area": 264, "type": "pickleball", "court_w": 6.096, "court_d": 13.4112}, {"id": "K2-S", "zone": "K2", "name": "Cầu mây", "x": 18, "y": 3, "w": 13, "d": 22, "area": 286, "type": "sepak", "court_w": 6.1, "court_d": 13.4}, {"id": "K2-U", "zone": "K2", "name": "Dự phòng hạ tầng kín", "x": 22, "y": 28, "w": 10, "d": 10, "area": 100, "type": "utility"}], "roads": [{"id": "R1", "name": "Đường vào kho/bãi", "x": 35, "y": 10, "w": 35, "d": 6}, {"id": "R2", "name": "Trục phục vụ 6 m", "x": 35, "y": 16, "w": 6, "d": 65}, {"id": "R3", "name": "Nhánh đón trả xe nhẹ", "x": 28, "y": 75, "w": 20, "d": 6}, {"id": "R4", "name": "Lối xe VIP", "x": 28, "y": 81, "w": 6, "d": 11}], "counts": {"resident_rooms": 8, "resident_beds": 24, "resident_wc": 8, "resident_showers_proposed": 8, "vip_bedrooms": 4, "vip_bathrooms_proposed": 4, "canteen_seats_proposed": 36, "table_tennis": 2, "pool": 1, "carom": 1, "pickleball": 1, "sepak": 1}, "design": {"dorm_wing": [18.6, 9.6], "dorm_bay_pitch": 4.65, "dorm_bedroom_strip": 5.2, "dorm_wet_strip": 2.6, "dorm_porch": 1.8, "dorm_wc_gross": [2.2, 2.6], "dorm_bed": [0.95, 2], "games_clear": [16, 12], "vip_enclosed": [20, 12], "vip_porch": [20, 3], "road_width_proposed": 6, "level_note": "±0.000 là cốt sàn tương đối của từng công trình, không phải cốt tuyệt đối hoặc mực chống ngập.", "area_note": "Diện tích 2.250 m² là diện tích đất phân khu, đã gồm đường, sân, cây xanh và hạ tầng trong ranh khu. Chỉ kích thước hiển thị được làm tròn; tọa độ dữ liệu giữ độ chính xác."}, "holds": ["Đo nối ranh 70 × 130 m vào mốc địa chính; xác định hướng Bắc và phạm vi đất được sử dụng.", "Khảo sát cao độ, mực nước lớn, thoát nước và điểm P2 được ghi nghi sinh lầy trên ảnh; chưa có kết luận địa chất.", "Kỹ sư xác nhận móng, xử lý nền, khung, mái chịu gió và liên kết neo; chưa có số liệu cốt thép hoặc tiết diện chịu lực được duyệt.", "Chốt loại xe, vệt bánh quay đầu, tải kho/bãi, vị trí và tải cầu trước khi cố định đường và kết cấu nền.", "Tính cấp nước, xử lý nước thải, mưa thiết kế và vị trí xả được phép; không bố trí xả nước thải trực tiếp vào hồ/kênh.", "Tính điện, bảo vệ, tiếp địa, chống sét, chiếu sáng và các yêu cầu tiếp cận/thoát nạn theo hồ sơ địa phương."], "sources": [{"id": "U1", "name": "Yêu cầu điều chỉnh của chủ đầu tư ngày 18/10/2026", "type": "user"}, {"id": "U2", "name": "Ảnh vệ tinh do chủ đầu tư cung cấp; ảnh nền ghi 31/05/2023", "type": "user", "file": "sources/anh-ve-tinh-goc.jpeg"}, {"id": "S1", "name": "USA Pickleball - Court Construction", "url": "https://usapickleball.org/construction/", "accessed": "2026-10-18"}, {"id": "S2", "name": "ISTAF - Law of the Game 2024, mục 1.1 và 1.5", "url": "https://img1.wsimg.com/blobby/go/b28abe2b-c8e0-4c25-b6ac-d2655417c6c3/Law%20of%20the%20Game%202024%20-%20Regu%20-.pdf", "accessed": "2026-10-18"}, {"id": "S3", "name": "ITTF - Statutes 2026, mục 3.2.3.1", "url": "https://documents.ittf.sport/sites/default/files/public/2026-02/2026_Statutes_v1_consolidated_clean.pdf", "accessed": "2026-10-18"}, {"id": "S4", "name": "Brunswick - Pool Table Room Size Guide", "url": "https://www.brunswickbilliards.com/blogs/buying-guides-inspiration/room-size-requirements", "accessed": "2026-10-18"}, {"id": "S5", "name": "MBM Biliardi - Cabochon dimensions", "url": "https://www.mbmbiliardi.it/en/billiard-table-cabochon/", "accessed": "2026-10-18"}]}</script><script>/* QLT Zavala — coordinate-based 3D massing. Canvas projection, no external libraries. */
+(() => {
+  'use strict';
+  const canvas = document.getElementById('camp-model-canvas');
+  if (!canvas) return;
+  const context = canvas.getContext('2d');
+  if (!context) { document.getElementById('model-fallback').hidden = false; return; }
+  const project = JSON.parse(document.getElementById('project-data').textContent);
+  const status = document.getElementById('model-status');
+  const select = document.getElementById('model-zone');
+  const heights = { dorm: [3.2, 4.68], vip: [3.3, 5.6], games: [4, 6], warehouse: [5, 6.3], office: [3.2, 4.3], guard: [3, 3.8], canteen: [3.2, 4.8], laundry: [3.1, 4], wc: [2.8, 3.8] };
+  const state = { yaw: -.5, elevation: .83, zoom: 1, zone: 'all', width: 800, height: 520 };
+  const ground = [], solids = [];
+  let pending = false, drag = null;
+  const clamp = (value, low, high) => Math.min(high, Math.max(low, value));
+  const rect = (x, y, w, d, z = .02) => [[x, y, z], [x + w, y, z], [x + w, y + d, z], [x, y + d, z]];
+  function color(hex, factor = 1) {
+    const value = String(hex).replace('#', '');
+    const rgb = [0, 2, 4].map(i => clamp(Math.round(parseInt(value.slice(i, i + 2), 16) * factor), 0, 255));
+    return `rgb(${rgb.join(',')})`;
+  }
+  function face(vertices, fill, zone, type = 'solid') {
+    const item = { vertices, fill, zone, type };
+    (type === 'ground' ? ground : solids).push(item);
+    return item;
+  }
+  function box(x, y, w, d, h, fill, zone, z = 0) {
+    const a = [x,y,z], b = [x+w,y,z], c = [x+w,y+d,z], e = [x,y+d,z];
+    const A = [x,y,z+h], B = [x+w,y,z+h], C = [x+w,y+d,z+h], E = [x,y+d,z+h];
+    face([a,b,B,A], color(fill,.94), zone);
+    face([b,c,C,B], color(fill,.83), zone);
+    face([c,e,E,C], color(fill,.88), zone);
+    face([e,a,A,E], color(fill,1.02), zone);
+    face([A,B,C,E], color(fill,1.05), zone);
+  }
+  function roof(building, wall, ridge) {
+    const {x,y,w,d,zone} = building;
+    const a=[x,y,wall], b=[x+w,y,wall], c=[x+w,y+d,wall], e=[x,y+d,wall];
+    const hip = ['vip','office','guard','canteen'].includes(building.type);
+    const inset = hip ? Math.min(d*.42,w*.24) : 0;
+    const r1=[x+inset,y+d/2,ridge], r2=[x+w-inset,y+d/2,ridge];
+    face([a,b,r2,r1], '#78807d', zone);
+    face([c,e,r1,r2], '#9ca5a0', zone);
+    face([e,a,r1], hip ? '#8c958f' : '#e7e2d4', zone);
+    face([b,c,r2], hip ? '#626f68' : '#d5d2c4', zone);
+  }
+  function door(x1,y1,x2,y2,zone,wall=3.2) {
+    face([[x1,y1,.08],[x2,y2,.08],[x2,y2,Math.min(2.2,wall*.75)],[x1,y1,Math.min(2.2,wall*.75)]], '#78664e', zone);
+  }
+  project.zones.forEach(zone => face(zone.polygon.map(([x,y]) => [x,y,0]), zone.color, zone.id, 'ground'));
+  project.roads.forEach(road => face(rect(road.x,road.y,road.w,road.d,.035), '#c8c3b3', 'all', 'ground'));
+  project.outdoor.forEach(item => {
+    const court = ['pickleball','sepak'].includes(item.type);
+    face(rect(item.x,item.y,item.w,item.d,.045), court ? '#7b9f94' : item.type==='drying' ? '#dad3bd' : '#bfc8b0', item.zone, 'ground');
+    if (court) {
+      const x=item.x+(item.w-item.court_w)/2, y=item.y+(item.d-item.court_d)/2;
+      const boundary = face(rect(x,y,item.court_w,item.court_d,.065), '#527e78', item.zone, 'ground');
+      boundary.line = '#f5f5e8';
+      const net = face([[x,y+item.court_d/2,.07],[x+item.court_w,y+item.court_d/2,.07]], '#f7f7ec', item.zone, 'ground');
+      net.line = '#f7f7ec';
+    }
+  });
+  project.buildings.forEach(building => {
+    const [wall,ridge] = heights[building.type] || [3.2,4.6];
+    box(building.x,building.y,building.w,building.d,wall,building.type==='warehouse'?'#d0d3c9':'#eee9dc',building.zone);
+    roof(building,wall,ridge);
+    if(building.type==='dorm') {
+      const pitch=building.w/4, front = building.faces==='+y' ? building.y+building.d+.02 : building.y-.02;
+      for(let n=0;n<4;n++) {
+        const x=building.x+pitch*(n+.5);
+        door(x-.48,front,x+.48,front,building.zone,wall);
+      }
+    } else if(building.type==='warehouse') {
+      for (const offset of [4,12.5]) door(building.x+offset,building.y-.025,building.x+offset+3.5,building.y-.025,building.zone,5);
+    } else door(building.x+building.w*.44,building.y-.025,building.x+building.w*.56,building.y-.025,building.zone,wall);
+  });
+  const obstacles=[...project.buildings,...project.roads,...project.outdoor];
+  function inside(x,y,polygon) {
+    let yes=false;
+    for(let i=0,j=polygon.length-1;i<polygon.length;j=i++) {
+      const [xi,yi]=polygon[i], [xj,yj]=polygon[j];
+      if(((yi>y)!==(yj>y))&&(x<(xj-xi)*(y-yi)/(yj-yi)+xi)) yes=!yes;
+    }
+    return yes;
+  }
+  let trees=0;
+  for(let y=7;y<128;y+=9) for(let x=4;x<68;x+=9) {
+    const seed=Math.abs(Math.sin(x*12.9898+y*78.233));
+    if(seed<.72 || (y<66 && seed<.96)) continue;
+    const zone=project.zones.find(item=>inside(x,y,item.polygon));
+    if(!zone || zone.id==='K4'||zone.id==='K5')continue;
+    if(obstacles.some(item=>x>item.x-3&&x<item.x+item.w+3&&y>item.y-3&&y<item.y+item.d+3))continue;
+    const h=3.4+seed, radius=1.8+seed*.35;
+    box(x-.12,y-.12,.24,.24,2,'#876b4f',zone.id);
+    const ring=Array.from({length:8},(_,i)=>[x+Math.cos(i*Math.PI/4)*radius,y+Math.sin(i*Math.PI/4)*radius,h-1]);
+    for(let n=0;n<8;n++) {
+      face([ring[n],ring[(n+1)%8],[x,y,h+.6]], n%2?'#709367':'#7d9c71',zone.id);
+      face([ring[(n+1)%8],ring[n],[x,y,1.65]], '#64875b',zone.id);
+    }
+    trees++;
+  }
+  function camera(point) {
+    const x=point[0]-project.site.width/2, y=point[1]-project.site.length/2, z=point[2];
+    const X=x*Math.cos(state.yaw)-y*Math.sin(state.yaw), Y=x*Math.sin(state.yaw)+y*Math.cos(state.yaw);
+    return {x:X,y:-(Y*Math.sin(state.elevation)+z*Math.cos(state.elevation)),depth:Y*Math.cos(state.elevation)-z*Math.sin(state.elevation)};
+  }
+  function scale() {
+    const base=rect(0,0,project.site.width,project.site.length).map(camera);
+    const width=Math.max(...base.map(p=>p.x))-Math.min(...base.map(p=>p.x));
+    const height=Math.max(...base.map(p=>p.y))-Math.min(...base.map(p=>p.y))+10;
+    return Math.min((state.width-70)/width,(state.height-65)/height)*state.zoom;
+  }
+  function projectPoint(point) {
+    const p=camera(point), factor=scale();
+    return {x:state.width/2+p.x*factor,y:state.height/2+8+p.y*factor,depth:p.depth};
+  }
+  function drawFace(item, factor) {
+    const active=state.zone==='all'||item.zone===state.zone||item.zone==='all';
+    if(item.type!=='ground'&&!active)return;
+    context.globalAlpha=active?(item.type==='ground'?.55:1):.12;
+    context.beginPath();
+    item.vertices.forEach((vertex,index)=>{
+      const p=camera(vertex), x=state.width/2+p.x*factor, y=state.height/2+8+p.y*factor;
+      if(index===0)context.moveTo(x,y);else context.lineTo(x,y);
+    });
+    if(item.vertices.length>2)context.closePath();
+    context.fillStyle=item.fill;
+    if(item.vertices.length>2)context.fill();
+    context.strokeStyle=item.line || (item.type==='ground'?'#6d7b6247':'#4d615029');
+    context.lineWidth=item.line?1:.65;
+    context.stroke();
+    context.globalAlpha=1;
+  }
+  function draw() {
+    pending=false;
+    const factor=scale();
+    context.clearRect(0,0,state.width,state.height);
+    const background=context.createLinearGradient(0,0,0,state.height);
+    background.addColorStop(0,'#e6ece1');background.addColorStop(1,'#f4f2e8');
+    context.fillStyle=background;context.fillRect(0,0,state.width,state.height);
+    ground.forEach(item=>drawFace(item,factor));
+    const ordered=solids.map(item=>({item,depth:item.vertices.reduce((sum,v)=>sum+camera(v).depth,0)/item.vertices.length})).sort((a,b)=>b.depth-a.depth);
+    ordered.forEach(({item})=>drawFace(item,factor));
+    const labels={K1:[54,124,0],K2:[12,60,0],K3:[15,124,0],K4:[54,58,0],K5:[65,2,0]};
+    context.font='600 11px "Segoe UI",Arial,sans-serif';context.textAlign='center';context.textBaseline='middle';
+    for(const [id,position]of Object.entries(labels)) {
+      if(state.zone!=='all'&&state.zone!==id)continue;
+      const p=projectPoint(position);
+      context.fillStyle='#fffef5e8';context.fillRect(p.x-15,p.y-10,30,20);
+      context.fillStyle='#294735';context.fillText(id,p.x,p.y);
+    }
+    status.textContent=`${state.zone==='all'?'Toàn khu':state.zone+' · '+project.zones.find(z=>z.id===state.zone).name} · Góc nhìn ${Math.round(state.elevation*180/Math.PI)}° · Phóng ${Math.round(state.zoom*100)}%`;
+  }
+  function render() {if(!pending){pending=true;window.requestAnimationFrame(draw);}}
+  function resize() {
+    const rect=canvas.getBoundingClientRect();
+    state.width=Math.max(260,rect.width);state.height=Math.max(260,rect.height);
+    const ratio=Math.min(window.devicePixelRatio||1,2);
+    canvas.width=Math.round(state.width*ratio);canvas.height=Math.round(state.height*ratio);
+    context.setTransform(ratio,0,0,ratio,0,0);render();
+  }
+  function reset() {state.yaw=-.5;state.elevation=.83;state.zoom=1;render();}
+  function setZone(zone) {state.zone=zone==='all'||project.zones.some(z=>z.id===zone)?zone:'all';select.value=state.zone;render();}
+  function zoom(factor) {state.zoom=clamp(state.zoom*factor,.5,3.2);render();}
+  select.addEventListener('change',()=>setZone(select.value));
+  document.getElementById('model-reset').addEventListener('click',reset);
+  document.getElementById('model-top').addEventListener('click',()=>{state.yaw=0;state.elevation=Math.PI/2;state.zoom=1;render();});
+  document.getElementById('model-zoom-in').addEventListener('click',()=>zoom(1.18));
+  document.getElementById('model-zoom-out').addEventListener('click',()=>zoom(1/1.18));
+  canvas.addEventListener('pointerdown',event=>{drag={id:event.pointerId,x:event.clientX,y:event.clientY,yaw:state.yaw,elevation:state.elevation};canvas.setPointerCapture(event.pointerId);canvas.classList.add('dragging');});
+  canvas.addEventListener('pointermove',event=>{if(!drag||event.pointerId!==drag.id)return;state.yaw=drag.yaw+(event.clientX-drag.x)*.008;state.elevation=clamp(drag.elevation-(event.clientY-drag.y)*.006,.18,Math.PI/2);render();});
+  const release=()=>{drag=null;canvas.classList.remove('dragging');};
+  canvas.addEventListener('pointerup',release);canvas.addEventListener('pointercancel',release);canvas.addEventListener('lostpointercapture',release);
+  canvas.addEventListener('wheel',event=>{event.preventDefault();zoom(Math.exp(-event.deltaY*.001));},{passive:false});
+  canvas.addEventListener('keydown',event=>{
+    if(!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','+','=','-','Home'].includes(event.key))return;
+    event.preventDefault();
+    if(event.key==='ArrowLeft')state.yaw-=.12;
+    if(event.key==='ArrowRight')state.yaw+=.12;
+    if(event.key==='ArrowUp')state.elevation=clamp(state.elevation+.08,.18,Math.PI/2);
+    if(event.key==='ArrowDown')state.elevation=clamp(state.elevation-.08,.18,Math.PI/2);
+    if(event.key==='+'||event.key==='=')zoom(1.18);
+    if(event.key==='-')zoom(1/1.18);
+    if(event.key==='Home')reset();else render();
+  });
+  window.addEventListener('resize',resize);
+  if('ResizeObserver'in window)new window.ResizeObserver(resize).observe(canvas);
+  function freeze(value) {if(value&&typeof value==='object'&&!Object.isFrozen(value)){Object.values(value).forEach(freeze);Object.freeze(value);}return value;}
+  window.CAMP_MODEL_SCENE=freeze({units:'m',site:{width:project.site.width,length:project.site.length},heights,ground,solids});
+  window.CAMP_MODEL3D=Object.freeze({reset,setZone,projectPoint,getState:()=>({...state}),getSummary:()=>({buildings:project.buildings.map(b=>({id:b.id,x:b.x,y:b.y,w:b.w,d:b.d,wall:heights[b.type]?.[0],ridge:heights[b.type]?.[1]})),zones:project.zones.length,trees,solidFaces:solids.length})});
+  resize();
+})();
+</script></body></html>
