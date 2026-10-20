@@ -1,0 +1,293 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Trạm nhiên liệu Chifunde</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;700&family=Be+Vietnam+Pro:wght@400;600&display=swap">
+<style>
+/* Layout: full-screen 3D viewport, header strip on top, view-switch bar on bottom — like a site-model viewer */
+:root{
+  --bg:#eef1f4; --panel:rgba(255,255,255,.88); --fg:#14212e; --muted:#5b6a78;
+  --line:#c9d2db; --accent:#1F4E79; --accent-fg:#ffffff; --hazard:#f2c500;
+  --display:"Barlow Condensed","Arial Narrow",sans-serif;
+  --body:"Be Vietnam Pro",system-ui,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0f161d; --panel:rgba(18,27,36,.88); --fg:#e6edf3; --muted:#93a3b2;
+  --line:#2c3a48; --accent:#5b9bd5; --accent-fg:#0b1520; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0f161d; --panel:rgba(18,27,36,.88); --fg:#e6edf3; --muted:#93a3b2;
+  --line:#2c3a48; --accent:#5b9bd5; --accent-fg:#0b1520; color-scheme:dark}
+html,body{height:100%}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);overflow:hidden}
+#app{position:relative;height:100%;width:100%}
+canvas{display:block;width:100%;height:100%;touch-action:none}
+header{position:absolute;top:0;left:0;right:0;padding-block:12px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+  display:flex;gap:12px;align-items:flex-start;justify-content:space-between;pointer-events:none}
+.tb{background:var(--panel);backdrop-filter:blur(8px);border:1px solid var(--line);border-left:4px solid var(--accent);
+  padding:8px 12px;max-width:min(440px,100%);pointer-events:auto}
+.tb .eyebrow{font:500 11px/1.2 var(--display);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.tb h1{font:700 22px/1.1 var(--display);margin:2px 0 4px;text-wrap:balance;letter-spacing:.01em}
+.tb .meta{font-size:12px;color:var(--muted);display:flex;flex-wrap:wrap;gap:4px 12px}
+.tb .meta b{color:var(--fg);font-weight:600}
+.toggles{display:flex;flex-direction:column;gap:6px;pointer-events:auto}
+.chip{font:600 12px var(--body);background:var(--panel);color:var(--fg);border:1px solid var(--line);
+  padding:7px 10px;cursor:pointer;white-space:nowrap}
+.chip[aria-pressed="true"]{background:var(--accent);color:var(--accent-fg);border-color:var(--accent)}
+.chip:focus-visible,.view:focus-visible{outline:2px solid var(--hazard);outline-offset:2px}
+nav{position:absolute;left:0;right:0;bottom:0;padding-block:12px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+  display:flex;flex-direction:column;gap:8px;align-items:center;pointer-events:none}
+.views{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;pointer-events:auto}
+.view{font:700 14px var(--display);letter-spacing:.06em;text-transform:uppercase;background:var(--panel);
+  color:var(--fg);border:1px solid var(--line);padding:8px 12px;cursor:pointer;backdrop-filter:blur(8px)}
+.view.on{background:var(--accent);color:var(--accent-fg);border-color:var(--accent)}
+.hint{font-size:11px;color:var(--muted);background:var(--panel);padding:3px 8px}
+.legend{position:absolute;right:max(16px,env(safe-area-inset-right,0px));bottom:96px;background:var(--panel);
+  border:1px solid var(--line);padding:8px 10px;font-size:12px;line-height:1.6;max-width:220px;backdrop-filter:blur(8px)}
+.legend b{font:700 12px var(--display);letter-spacing:.1em;text-transform:uppercase;color:var(--muted);display:block}
+@media (max-width:620px){.legend{display:none}.tb h1{font-size:19px}}
+#loading{position:absolute;inset:0;display:grid;place-items:center;color:var(--muted);font:600 14px var(--body)}
+</style>
+
+<div id="app">
+  <div id="loading">Đang dựng mô hình…</div>
+  <header>
+    <div class="tb">
+      <div class="eyebrow">Nyiccos LDA · Kiến trúc · Mô hình 3D</div>
+      <h1>Instalação de uma posição consumidora</h1>
+      <div class="meta"><span>Chủ đầu tư <b>Higg</b></span><span>Vị trí <b>Chifunde, Tete</b></span><span>Bản vẽ gốc <b>01 · 1:100 · 08/2026</b></span></div>
+    </div>
+    <div class="toggles">
+      <button class="chip" id="tDusk" aria-pressed="false">Hoàng hôn</button>
+      <button class="chip" id="tSpin" aria-pressed="false">Tự xoay</button>
+    </div>
+  </header>
+  <div class="legend">
+    <b>Hạng mục</b>
+    2 bồn thép Ø2.3 × 4.5 m, 20.000 L<br>
+    Bể chống tràn 8.2 × 7.8 m, tường 0.6 m<br>
+    Lối đi chung trên bồn + thang lồng<br>
+    Ống ra để chờ, điểm nhập dầu<br>
+    Trụ chắn va, đèn pha 8 m<br>
+    Bình chữa cháy, tủ điện<br>
+    Sân bê tông, nền sỏi
+  </div>
+  <nav>
+    <div class="views" id="views"></div>
+    <div class="hint">Kéo để xoay · chụm/cuộn để phóng to · hai ngón để di chuyển</div>
+  </nav>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<script>
+(function(){
+const app=document.getElementById('app');
+const renderer=new THREE.WebGLRenderer({antialias:true});
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+renderer.shadowMap.enabled=true; renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+renderer.outputEncoding=THREE.sRGBEncoding; renderer.toneMapping=THREE.ACESFilmicToneMapping; renderer.toneMappingExposure=1.05;
+app.prepend(renderer.domElement);
+document.getElementById('loading').remove();
+
+const scene=new THREE.Scene();
+const camera=new THREE.PerspectiveCamera(45,1,0.1,800);
+const controls=new THREE.OrbitControls(camera,renderer.domElement);
+controls.enableDamping=true; controls.maxPolarAngle=Math.PI*0.49; controls.minDistance=4; controls.maxDistance=80;
+controls.autoRotateSpeed=0.6;
+
+/* ---------- textures ---------- */
+function canvasTex(w,h,draw,rep){const c=document.createElement('canvas');c.width=w;c.height=h;draw(c.getContext('2d'),w,h);
+  const t=new THREE.CanvasTexture(c);t.encoding=THREE.sRGBEncoding;t.anisotropy=8;
+  if(rep){t.wrapS=t.wrapT=THREE.RepeatWrapping;t.repeat.set(rep[0],rep[1]);}return t;}
+const gravelTex=canvasTex(512,512,(g,w,h)=>{g.fillStyle='#8c857b';g.fillRect(0,0,w,h);
+  for(let i=0;i<14000;i++){const s=Math.random()*3+1,v=90+Math.random()*110|0;
+    g.fillStyle=`rgb(${v},${v-6},${v-14})`;g.beginPath();g.ellipse(Math.random()*w,Math.random()*h,s,s*0.7,Math.random()*3,0,7);g.fill();}},[30,30]);
+const concreteTex=canvasTex(256,256,(g,w,h)=>{g.fillStyle='#b9b6af';g.fillRect(0,0,w,h);
+  for(let i=0;i<5000;i++){const v=160+Math.random()*50|0;g.fillStyle=`rgba(${v},${v},${v-4},.5)`;g.fillRect(Math.random()*w,Math.random()*h,1.5,1.5);}},[3,3]);
+const slabTex=canvasTex(512,512,(g,w,h)=>{g.fillStyle='#9fa3a6';g.fillRect(0,0,w,h);
+  for(let i=0;i<9000;i++){const v=140+Math.random()*50|0;g.fillStyle=`rgba(${v},${v+2},${v+6},.45)`;g.fillRect(Math.random()*w,Math.random()*h,2,2);}
+  g.strokeStyle='rgba(60,60,60,.35)';g.lineWidth=2;for(let i=0;i<=4;i++){g.beginPath();g.moveTo(i*w/4,0);g.lineTo(i*w/4,h);g.stroke();g.beginPath();g.moveTo(0,i*h/4);g.lineTo(w,i*h/4);g.stroke();}},[2,2]);
+const bollardTex=canvasTex(32,256,(g,w,h)=>{g.fillStyle='#f2c500';g.fillRect(0,0,w,h);g.fillStyle='#111';
+  g.fillRect(0,h*0.16,w,h*0.12);g.fillRect(0,h*0.44,w,h*0.12);});
+function skyTex(dusk){return canvasTex(16,512,(g,w,h)=>{const gr=g.createLinearGradient(0,0,0,h);
+  if(dusk){gr.addColorStop(0,'#1d2b52');gr.addColorStop(.45,'#7a5a86');gr.addColorStop(.62,'#f19a5a');gr.addColorStop(1,'#f6c58a');}
+  else{gr.addColorStop(0,'#1f5fb8');gr.addColorStop(.5,'#5a9be0');gr.addColorStop(.7,'#b9d7f2');gr.addColorStop(1,'#e6eef2');}
+  g.fillStyle=gr;g.fillRect(0,0,w,h);});}
+const skyDay=skyTex(false), skyDusk=skyTex(true);
+
+/* ---------- materials ---------- */
+const M={
+  gravel:new THREE.MeshStandardMaterial({map:gravelTex,roughness:1}),
+  slab:new THREE.MeshStandardMaterial({map:slabTex,roughness:.35,metalness:.05}),
+  concrete:new THREE.MeshStandardMaterial({map:concreteTex,roughness:.85}),
+  tank:new THREE.MeshStandardMaterial({color:0xf1f1ee,roughness:.35,metalness:.25}),
+  steel:new THREE.MeshStandardMaterial({color:0xd9dcdf,roughness:.4,metalness:.7}),
+  dark:new THREE.MeshStandardMaterial({color:0x22262a,roughness:.6,metalness:.3}),
+  rubber:new THREE.MeshStandardMaterial({color:0x151515,roughness:.9}),
+  red:new THREE.MeshStandardMaterial({color:0xc4161c,roughness:.4,metalness:.2}),
+  bollard:new THREE.MeshStandardMaterial({map:bollardTex,roughness:.5}),
+  white:new THREE.MeshStandardMaterial({color:0xf5f5f5,roughness:.5}),
+  pump:new THREE.MeshStandardMaterial({color:0xe9e9e6,roughness:.4,metalness:.2}),
+  glass:new THREE.MeshStandardMaterial({color:0x1b2a36,roughness:.15,metalness:.6}),
+  bark:new THREE.MeshStandardMaterial({color:0x3e3226,roughness:1}),
+  leaf:new THREE.MeshStandardMaterial({color:0x3f5e23,roughness:.95}),
+  bush:new THREE.MeshStandardMaterial({color:0x4d6b2a,roughness:1}),
+  pink:new THREE.MeshStandardMaterial({color:0xb04a5a,roughness:1}),
+  lamp:new THREE.MeshStandardMaterial({color:0xffffff,emissive:0x000000})
+};
+function box(w,h,d,m,x,y,z,p){const o=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),m);o.position.set(x,y,z);o.castShadow=o.receiveShadow=true;(p||scene).add(o);return o;}
+function cyl(rt,rb,h,m,x,y,z,p,seg){const o=new THREE.Mesh(new THREE.CylinderGeometry(rt,rb,h,seg||24),m);o.position.set(x,y,z);o.castShadow=o.receiveShadow=true;(p||scene).add(o);return o;}
+
+/* ---------- ground ---------- */
+const ground=new THREE.Mesh(new THREE.PlaneGeometry(240,240),M.gravel);ground.rotation.x=-Math.PI/2;ground.receiveShadow=true;scene.add(ground);
+// apron slab (forecourt) with kerb
+box(18,0.15,16,M.slab,0,0.075,0);
+[[0,8.1,18.4,0.3],[0,-8.1,18.4,0.3]].forEach(a=>box(a[2],0.25,a[3],M.concrete,a[0],0.125,a[1]));
+[[9.1,0],[-9.1,0]].forEach(a=>box(0.3,0.25,16.5,M.concrete,a[0],0.125,a[1]));
+
+/* ---------- bể chống tràn 8.2 × 7.8 m — khớp bản vẽ TC-02/03 ---------- */
+// ±0.00 bản vẽ = y 0.15. Sàn bể +0.10, đỉnh tường +0.70, tâm bồn +2.00, lối đi +3.25
+const BX=-0.8, Z0=0.15, WH=0.6;
+box(8.2,0.25,7.8,M.concrete,BX,Z0-0.025,0);
+box(8.2,WH,0.2,M.concrete,BX,Z0+0.1+WH/2,-3.8);box(8.2,WH,0.2,M.concrete,BX,Z0+0.1+WH/2,3.8);
+box(0.2,WH,7.4,M.concrete,BX-4.0,Z0+0.1+WH/2,0);box(0.2,WH,7.4,M.concrete,BX+4.0,Z0+0.1+WH/2,0);
+box(7.8,0.02,7.4,new THREE.MeshStandardMaterial({color:0x8d9aa3,roughness:.3}),BX,Z0+0.11,0);
+for(let i=0;i<3;i++) box(0.28,0.2333*(i+1),1.2,M.concrete,BX-4.1-0.84+0.14+0.28*i,Z0+0.1167*(i+1),0);
+box(0.6,0.04,1.0,M.steel,BX-3.6,Z0+0.4,0);
+box(0.4,0.02,0.4,M.dark,BX+3.5,Z0+0.125,0);
+
+/* ---------- 2 bồn Ø2300 × 4500, 20.000 L ---------- */
+const TR=1.15, TL=4.5, TY=Z0+2.0, pM=M.dark;
+function pipeX(x1,x2,y,z){const c=cyl(0.035,0.035,Math.abs(x2-x1),pM,(x1+x2)/2,y,z);c.rotation.z=Math.PI/2;}
+function pipeY(x,y1,y2,z){cyl(0.035,0.035,Math.abs(y2-y1),pM,x,(y1+y2)/2,z);}
+[-1.65,1.65].forEach(tz=>{
+  const sh=cyl(TR,TR,TL,M.tank,BX,TY,tz,null,48);sh.rotation.z=Math.PI/2;
+  [-1,1].forEach(s=>{const cap=new THREE.Mesh(new THREE.SphereGeometry(TR,48,24,0,Math.PI*2,0,Math.PI/2),M.tank);
+    cap.scale.set(1,0.25/TR,1);cap.rotation.z=-s*Math.PI/2;cap.position.set(BX+s*TL/2,TY,tz);cap.castShadow=true;scene.add(cap);});
+  [-1.35,1.35].forEach(dx=>box(0.35,1.05,2.0,M.concrete,BX+dx,Z0+0.1+0.525,tz));
+  cyl(0.3,0.3,0.2,M.steel,BX+0.9,TY+TR+0.06,tz);
+  cyl(0.03,0.03,1.5,M.steel,BX+1.7,TY+TR+0.75,tz);cyl(0.07,0.07,0.12,M.steel,BX+1.7,TY+TR+1.5,tz);
+  // ống nhập → hộp nhập ở tường đông
+  const zf=tz-0.4, yt=TY+TR+0.3;
+  pipeY(BX+1.9,TY+TR-0.1,yt,zf);pipeX(BX+1.9,BX+4.3,yt,zf);pipeY(BX+4.3,Z0+1.0,yt,zf);
+  box(0.35,0.35,0.35,M.dark,BX+4.3,Z0+0.85,zf);
+  // ống ra vượt tường, van + bịt đầu
+  const zo=tz+0.4;
+  pipeY(BX+2.0,Z0+0.45,TY-TR+0.05,zo);pipeX(BX+2.0,BX+3.8,Z0+0.45,zo);pipeY(BX+3.8,Z0+0.45,Z0+0.9,zo);
+  pipeX(BX+3.8,BX+4.5,Z0+0.9,zo);pipeY(BX+4.5,Z0+0.55,Z0+0.9,zo);box(0.12,0.12,0.12,M.red,BX+4.5,Z0+0.5,zo);
+  // gối lối đi
+  [-0.45,0.45].forEach(dx=>cyl(0.03,0.03,0.14,M.steel,BX-1.5+dx,TY+TR+0.06,tz,null,8));
+});
+// lối đi chung trên 2 bồn + lan can
+const DY=Z0+3.28;
+box(1.2,0.06,4.9,M.steel,BX-1.5,DY,0);
+function rail(x1,z1,x2,z2,y0){const dx=x2-x1,dz=z2-z1,L=Math.hypot(dx,dz),a=Math.atan2(dz,dx);
+  [0.5,1.0].forEach(h=>{const r=box(L,0.04,0.04,M.steel,(x1+x2)/2,y0+h,(z1+z2)/2);r.rotation.y=-a;});
+  const n=Math.max(2,Math.round(L/0.8));for(let i=0;i<=n;i++)cyl(0.022,0.022,1.0,M.steel,x1+dx*i/n,y0+0.5,z1+dz*i/n,null,8);}
+rail(BX-2.1,-2.45,BX-2.1,2.45,DY);rail(BX-0.9,-2.45,BX-0.9,2.45,DY);
+rail(BX-2.1,-2.45,BX-0.9,-2.45,DY);rail(BX-2.1,2.45,BX-0.9,2.45,DY);
+// thang có lồng ở khe giữa 2 bồn
+const lx=BX-1.5, LH=DY+1.0-(Z0+0.1);
+[-0.25,0.25].forEach(z=>box(0.05,LH,0.05,M.steel,lx,Z0+0.1+LH/2,z));
+for(let y=Z0+0.4;y<DY+0.9;y+=0.3) box(0.04,0.03,0.5,M.steel,lx,y,0);
+for(let y=Z0+2.2;y<DY+1;y+=0.5){const h=new THREE.Mesh(new THREE.TorusGeometry(0.36,0.018,6,20,Math.PI),M.steel);h.rotation.set(Math.PI/2,0,Math.PI/2);h.position.set(lx-0.02,y,0);scene.add(h);}
+// tủ điện, bình chữa cháy, tiếp địa
+box(0.6,0.7,0.2,M.white,2.3,Z0+0.45,4.02);
+[[-5.8,-2.0],[4.6,-5.8]].forEach(p=>{cyl(0.12,0.12,0.55,M.red,p[0],Z0+0.28,p[1]);cyl(0.03,0.03,0.12,M.dark,p[0],Z0+0.6,p[1]);});
+cyl(0.02,0.02,0.8,M.steel,4.6,Z0+0.4,5.4);
+
+/* ---------- trụ chắn va ---------- */
+[[-5.6,-4.6],[-5.6,4.6],[4,-4.6],[4,4.6],[4.1,-0.4]].forEach(p=>{
+  cyl(0.084,0.084,1.1,M.bollard,p[0],Z0+0.55,p[1],null,20);cyl(0.084,0.06,0.04,M.bollard,p[0],Z0+1.12,p[1]);});
+
+/* ---------- light pole ---------- */
+const LPx=-7.5,LPz=6.5;
+cyl(0.12,0.2,8,M.white,LPx,4.15,LPz);
+box(0.6,0.5,0.6,M.concrete,LPx,0.4,LPz);
+const arm=box(1.4,0.08,0.08,M.white,LPx+0.7,8.05,LPz);
+const head=box(0.6,0.12,0.3,M.lamp,LPx+1.3,7.98,LPz);
+const lampLight=new THREE.SpotLight(0xffd9a0,0,40,Math.PI/3.2,0.5,1.2);lampLight.position.set(LPx+1.3,7.9,LPz);
+lampLight.target.position.set(0,0,0);lampLight.castShadow=true;scene.add(lampLight,lampLight.target);
+
+/* ---------- tanker truck ---------- */
+function truck(){const g=new THREE.Group();
+  const cab=new THREE.MeshStandardMaterial({color:0xeeeeee,roughness:.35,metalness:.2});
+  box(2.0,2.2,2.4,cab,4.6,1.75,0,g);box(0.05,0.9,2.0,M.glass,5.62,2.25,0,g);
+  box(1.2,0.3,2.45,M.dark,4.6,0.65,0,g);
+  box(10,0.25,1.2,M.dark,-0.6,0.95,0,g);
+  const tk=new THREE.Mesh(new THREE.CylinderGeometry(1.15,1.15,8.2,40),new THREE.MeshStandardMaterial({color:0xd8dadc,roughness:.25,metalness:.75}));
+  tk.rotation.z=Math.PI/2;tk.position.set(-0.9,2.3,0);tk.scale.set(1,1,1.05);tk.castShadow=true;g.add(tk);
+  [-5,3.2].forEach(x=>{const c=new THREE.Mesh(new THREE.SphereGeometry(1.15,32,16),tk.material);c.scale.set(0.3,1,1.05);c.position.set(x,2.3,0);c.castShadow=true;g.add(c);});
+  box(7.6,0.06,0.5,M.steel,-0.9,3.48,0,g);
+  [4.9,-3.2,-4.4].forEach(x=>[-1.05,1.05].forEach(z=>{const w=cyl(0.5,0.5,0.35,M.rubber,x,0.5,z,g,20);w.rotation.x=Math.PI/2;
+    const hb=cyl(0.25,0.25,0.37,M.steel,x,0.5,z,g,12);hb.rotation.x=Math.PI/2;}));
+  return g;}
+const tr=truck();tr.position.set(6.25,0,0);tr.rotation.y=Math.PI/2;scene.add(tr);
+
+/* ---------- pickup ---------- */
+const pk=new THREE.Group();const pkM=new THREE.MeshStandardMaterial({color:0x2d3237,roughness:.35,metalness:.5});
+box(4.6,0.7,1.8,pkM,0,0.85,0,pk);box(2.0,0.65,1.7,pkM,0.6,1.5,0,pk);box(2.02,0.45,1.72,M.glass,0.6,1.52,0,pk);
+[[1.5,0.9],[1.5,-0.9],[-1.5,0.9],[-1.5,-0.9]].forEach(p=>{const w=cyl(0.38,0.38,0.28,M.rubber,p[0],0.4,p[1],pk,18);w.rotation.x=Math.PI/2;});
+pk.position.set(-14,0,-3.5);pk.rotation.y=0.3;scene.add(pk);
+
+/* ---------- acacia + vegetation ---------- */
+function acacia(x,z,s){const g=new THREE.Group();
+  const t=cyl(0.18,0.32,4,M.bark,0,2,0,g,10);t.rotation.z=0.08;
+  [[-1.2,4.2,0.3],[1.3,4.5,-0.4],[0,4.8,0.9]].forEach(b=>{const br=cyl(0.07,0.12,2,M.bark,b[0]/2,3.7,b[2]/2,g,6);br.lookAt(b[0],b[1]+1,b[2]);br.rotateX(Math.PI/2);});
+  [[0,5.0,0,4.2],[-1.8,4.6,0.5,2.6],[2.0,4.8,-0.6,2.8],[0.4,5.3,1.4,2.4]].forEach(c=>{const m=new THREE.Mesh(new THREE.SphereGeometry(1,16,10),M.leaf);
+    m.scale.set(c[3],0.45,c[3]*0.8);m.position.set(c[0],c[1],c[2]);m.castShadow=true;g.add(m);});
+  g.position.set(x,0,z);g.scale.setScalar(s);scene.add(g);}
+acacia(-13,7,1.1);acacia(26,-22,0.9);
+// treeline / bush band far away
+for(let i=0;i<180;i++){const a=Math.random()*Math.PI*2,r=55+Math.random()*25;
+  const m=new THREE.Mesh(new THREE.SphereGeometry(1,8,6),Math.random()<0.12?M.pink:M.bush);
+  const s=2+Math.random()*3.5;m.scale.set(s,s*(0.5+Math.random()*0.5),s);m.position.set(Math.cos(a)*r,s*0.35,Math.sin(a)*r);scene.add(m);}
+
+/* ---------- lights & sky ---------- */
+const hemi=new THREE.HemisphereLight(0xcfe3ff,0x6b5e4a,0.7);scene.add(hemi);
+const sun=new THREE.DirectionalLight(0xffffff,2.2);sun.position.set(-20,30,18);sun.castShadow=true;
+sun.shadow.mapSize.set(2048,2048);Object.assign(sun.shadow.camera,{left:-25,right:25,top:25,bottom:-25,near:1,far:90});sun.shadow.bias=-0.0004;
+scene.add(sun);
+scene.background=skyDay;scene.fog=new THREE.Fog(0xcfe0ee,60,180);
+
+function setDusk(on){
+  scene.background=on?skyDusk:skyDay;scene.fog.color.set(on?0xd59474:0xcfe0ee);
+  sun.color.set(on?0xff9e5e:0xffffff);sun.intensity=on?0.9:2.2;sun.position.set(on?-40:-20,on?8:30,on?10:18);
+  hemi.intensity=on?0.35:0.7;lampLight.intensity=on?3.2:0;
+  M.lamp.emissive.set(on?0xffe2b0:0x000000);renderer.toneMappingExposure=on?1.15:1.05;}
+
+/* ---------- views ---------- */
+const VIEWS=[
+  {n:'Góc 1',p:[-15,3.2,15],t:[0,1.5,-2]},
+  {n:'Góc 2',p:[-19,2.6,-1.5],t:[0,2,0]},
+  {n:'Góc 3',p:[17,2.6,-3],t:[-1,1.8,0.5]},
+  {n:'Góc 4',p:[11,2.6,7],t:[0,1.6,0]},
+  {n:'Trên cao',p:[0.5,30,8],t:[0,0,-1]}];
+const vEl=document.getElementById('views');let tween=null;
+VIEWS.forEach((v,i)=>{const b=document.createElement('button');b.className='view';b.id='v'+i;b.textContent=v.n;
+  b.onclick=()=>go(i);vEl.appendChild(b);});
+function go(i,instant){[...vEl.children].forEach((b,j)=>b.classList.toggle('on',i===j));
+  const v=VIEWS[i],P=new THREE.Vector3(...v.p),T=new THREE.Vector3(...v.t);
+  if(instant||matchMedia('(prefers-reduced-motion: reduce)').matches){camera.position.copy(P);controls.target.copy(T);return;}
+  tween={p0:camera.position.clone(),t0:controls.target.clone(),P,T,s:performance.now()};}
+renderer.domElement.addEventListener('pointerdown',()=>{tween=null;[...vEl.children].forEach(b=>b.classList.remove('on'));});
+
+const tD=document.getElementById('tDusk'),tS=document.getElementById('tSpin');
+tD.onclick=()=>{const on=tD.getAttribute('aria-pressed')!=='true';tD.setAttribute('aria-pressed',on);setDusk(on);};
+tS.onclick=()=>{const on=tS.getAttribute('aria-pressed')!=='true';tS.setAttribute('aria-pressed',on);controls.autoRotate=on;};
+
+function resize(){const w=app.clientWidth,h=app.clientHeight;renderer.setSize(w,h,false);camera.aspect=w/h;
+  camera.fov=w<620?58:45;camera.updateProjectionMatrix();}
+addEventListener('resize',resize);resize();go(0,true);
+
+function loop(t){requestAnimationFrame(loop);
+  if(tween){let k=Math.min(1,(t-tween.s)/1200);k=k<.5?2*k*k:1-Math.pow(-2*k+2,2)/2;
+    camera.position.lerpVectors(tween.p0,tween.P,k);controls.target.lerpVectors(tween.t0,tween.T,k);if(k>=1)tween=null;}
+  controls.update();renderer.render(scene,camera);}
+requestAnimationFrame(loop);
+})();
+</script>
+
+</body></html>
